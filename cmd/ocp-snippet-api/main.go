@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 
 	"errors"
 	"os"
@@ -9,24 +10,31 @@ import (
 	"time"
 )
 
-func task3() {
-	// Task #3:
-	// Открытие файла n раз.
-	// В файле лежит цифра (с чсилом слишком сложно без ioutil :-), а суть задания не в этом ).
-	// При каждом открытии программа считывает текущую цифру, и увеличивает её (происходит перезапись)
+// task3 открывает файл openCount раз.
+// Функция принимает на вход путь к файлу (path) и количество требуемых открытий (openCount).
+// Функция ожидает, что в файле лежит целое число-счётчик. Если в файле лежит не число (не только число) на экран будет выведена ошибка функции Atoi.
+// По ходу выполнения показывает сколько раз был открыт файл.
+// openCount раз: открывает файл, считывает и выводит на экран текущее значение счётчика, увеличивает счётчик, закрывает файл.
+func task3(path string, openCount uint) {
 	getLastValue := func(file *os.File) (int, error) {
 		if file == nil {
 			return -1, errors.New("file is nil!")
 		}
 
-		b := make([]byte, 1)
-		bSz, err := file.Read(b)
+		data := make([]byte, 0, 64)
 
-		if err != nil {
+		var err error
+		for cur, n := make([]byte, 10), 0; err == nil; {
+			n, err = file.Read(cur)
+
+			data = append(data, cur[:n]...)
+		}
+
+		if err != io.EOF {
 			return -1, err
 		}
 
-		return strconv.Atoi(string(b[:bSz]))
+		return strconv.Atoi(string(data))
 	}
 	updateLastValue := func(file *os.File, newVal int) error {
 		if file == nil {
@@ -37,13 +45,13 @@ func task3() {
 		return err
 	}
 	readFile := func(path string) (int, error) {
-		file, err := os.OpenFile(path, os.O_RDWR, 0666)
+		file, err := os.OpenFile(path, os.O_RDWR, 0600)
 		defer file.Close()
 
 		cur, err := getLastValue(file)
 
 		if err != nil {
-			return -1, nil
+			return -1, err
 		}
 
 		err = updateLastValue(file, cur+1)
@@ -51,12 +59,12 @@ func task3() {
 		return cur, err
 	}
 
-	for range []int{1, 2, 3, 4, 5, 6, 7} {
-		res, err := readFile("test.txt")
+	for i := uint(0); i < openCount; i++ {
+		res, err := readFile(path)
 		if err == nil {
 			fmt.Printf("file updated %d times\n", res)
 		} else {
-			fmt.Printf("error while updating file: %s", err.Error()) // TO BE FIXED: заменить на fmt.Errorf!
+			fmt.Printf("error while updating file: %s", err.Error())
 		}
 		time.Sleep(1 * time.Second)
 	}
@@ -66,5 +74,5 @@ func task3() {
 func main() {
 	fmt.Println("ocp-snippet-api by Oleg Usov")
 
-	task3()
+	task3("test.txt", 10)
 }

@@ -5,19 +5,21 @@ import (
 )
 
 type Snippet struct {
-	UserId   uint64
-	Test     string
-	Language string
+	Id         uint64
+	SolutionId uint64
+	UserId     uint64
+	Test       string
+	Language   string
 }
-type SnippetSlice = []*Snippet
+type Snippets = []*Snippet
 type SnippetMap = map[uint64]*Snippet
 
 func String(snippetPtr *Snippet) string {
-	return "Snippet{\n\tUserId: " + strconv.Itoa(int(snippetPtr.UserId)) + ",\n\tTest: " + snippetPtr.Test + ",\n\tLanguage: " + snippetPtr.Language + "\n}"
-}
-
-func CompareSnippets(l *Snippet, r *Snippet) bool {
-	return l == r || (l.UserId == r.UserId &&
-		l.Test == r.Test &&
-		l.Language == r.Language)
+	return "Snippet {" + "\n\t" +
+		"Id: " + strconv.Itoa(int(snippetPtr.Id)) + ",\n\t" +
+		"SolutionId: " + strconv.Itoa(int(snippetPtr.SolutionId)) + ",\n\t" +
+		"UserId: " + strconv.Itoa(int(snippetPtr.UserId)) + ",\n\t" +
+		"Test: " + snippetPtr.Test + ",\n\t" +
+		"Language: " + snippetPtr.Language + ",\n" +
+		"}"
 }

@@ -9,36 +9,34 @@ import (
 // =====================================================================
 // Testing snippets:
 var (
-	snippet_1     = snippet.Snippet{UserId: 1}
-	snippet_2     = snippet.Snippet{UserId: 2}
-	snippet_3     = snippet.Snippet{UserId: 3}
-	snippet_4     = snippet.Snippet{UserId: 4}
-	snippet_5     = snippet.Snippet{UserId: 5}
-	snippet_6     = snippet.Snippet{UserId: 6}
-	snippet_7     = snippet.Snippet{UserId: 7}
-	snippet_8     = snippet.Snippet{UserId: 8}
-	snippet_9     = snippet.Snippet{UserId: 9}
-	snippet_n5    = snippet.Snippet{UserId: 15}
-	snippet_11    = snippet.Snippet{UserId: 11}
-	snippet_19    = snippet.Snippet{UserId: 19}
-	snippet_0     = snippet.Snippet{UserId: 0}
+	snippet_1     = snippet.Snippet{Id: 1}
+	snippet_2     = snippet.Snippet{Id: 2}
+	snippet_3     = snippet.Snippet{Id: 3}
+	snippet_4     = snippet.Snippet{Id: 4}
+	snippet_5     = snippet.Snippet{Id: 5}
+	snippet_6     = snippet.Snippet{Id: 6}
+	snippet_7     = snippet.Snippet{Id: 7}
+	snippet_8     = snippet.Snippet{Id: 8}
+	snippet_9     = snippet.Snippet{Id: 9}
+	snippet_n5    = snippet.Snippet{Id: 15}
+	snippet_11    = snippet.Snippet{Id: 11}
+	snippet_19    = snippet.Snippet{Id: 19}
+	snippet_0     = snippet.Snippet{Id: 0}
 	snippet_empty = snippet.Snippet{}
 )
 
 // =====================================================================
 
 // =====================================================================
-// Compare functions
+// Compare functions:
 
-// compareSnippets
-// Сравнивает указатели на Snippet и сравнивает по значению (сравнение по значению д.б. в реализации Snippet)
-func compareSnippetSlices(l *snippet.SnippetSlice, r *snippet.SnippetSlice) bool {
+func compareSnippetSlices(l *snippet.Snippets, r *snippet.Snippets) bool {
 	if len(*l) != len(*r) {
 		return false
 	}
 
 	for idx, lSnippet := range *l {
-		if !snippet.CompareSnippets(lSnippet, (*r)[idx]) {
+		if !(lSnippet == (*r)[idx] || *lSnippet == *(*r)[idx]) {
 			return false
 		}
 	}
@@ -46,10 +44,10 @@ func compareSnippetSlices(l *snippet.SnippetSlice, r *snippet.SnippetSlice) bool
 	return true
 }
 
-// compareSnippetSliceBatched - функция сравнения слайсов батчей (SnippetSliceBatched).
+// compareSnippetSliceBatched - функция сравнения слайсов батчей ([]snippet.Snippets).
 // Считает слайсы батчей равными, если их длины равны, длины батчей равны и указатели на сниппеты либо значения снипеттов равны
 // (тестируемая функция не делает глубокого копирования, однако функция сравнения рассматривает и такой кейс).
-func compareSnippetSliceBatched(l *SnippetSliceBatched, r *SnippetSliceBatched) bool {
+func compareSnippetSliceBatched(l *[]snippet.Snippets, r *[]snippet.Snippets) bool {
 	if len(*l) != len(*r) {
 		return false
 	}
@@ -62,7 +60,7 @@ func compareSnippetSliceBatched(l *SnippetSliceBatched, r *SnippetSliceBatched) 
 
 	return true
 }
-func compareReversedSnippetMaps(l *ReversedSnippetMap, r *ReversedSnippetMap) bool {
+func compareReversedSnippetMaps(l *map[*snippet.Snippet]uint64, r *map[*snippet.Snippet]uint64) bool {
 	if len(*l) != len(*r) {
 		return false
 	}
@@ -81,7 +79,7 @@ func compareSnippetMaps(l *snippet.SnippetMap, r *snippet.SnippetMap) bool {
 	}
 
 	for lKey, lValue := range *l {
-		if rValue, found := (*r)[lKey]; !found || !snippet.CompareSnippets(lValue, rValue) {
+		if rValue, found := (*r)[lKey]; !found || !(lValue == rValue || *lValue == *rValue) {
 			return false
 		}
 	}
@@ -92,94 +90,94 @@ func compareSnippetMaps(l *snippet.SnippetMap, r *snippet.SnippetMap) bool {
 // =====================================================================
 
 // =====================================================================
-// TestSplitSnippetSlice
 
+// TestSplitSnippetSlice
 func TestSplitSnippetSlice(t *testing.T) {
 	type result struct {
-		batchedSlice SnippetSliceBatched
+		batchedSlice []snippet.Snippets
 		errExpected  bool
 	}
 
 	testSet := []struct {
-		slice     snippet.SnippetSlice
+		slice     snippet.Snippets
 		batchSize uint
 		res       result
 	}{
 		{
-			slice:     snippet.SnippetSlice{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
+			slice:     snippet.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
 			batchSize: 3,
 			res: result{
-				batchedSlice: SnippetSliceBatched{{&snippet_1, &snippet_2, &snippet_3}, {&snippet_4, &snippet_5, &snippet_6}, {&snippet_7, &snippet_8}},
+				batchedSlice: []snippet.Snippets{{&snippet_1, &snippet_2, &snippet_3}, {&snippet_4, &snippet_5, &snippet_6}, {&snippet_7, &snippet_8}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.SnippetSlice{&snippet_1},
+			slice:     snippet.Snippets{&snippet_1},
 			batchSize: 3,
 			res: result{
-				batchedSlice: SnippetSliceBatched{{&snippet_1}},
+				batchedSlice: []snippet.Snippets{{&snippet_1}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.SnippetSlice{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
+			slice:     snippet.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
 			batchSize: 2,
 			res: result{
-				batchedSlice: SnippetSliceBatched{{&snippet_1, &snippet_2}, {&snippet_3, &snippet_4}, {&snippet_5, &snippet_6}, {&snippet_7, &snippet_8}},
+				batchedSlice: []snippet.Snippets{{&snippet_1, &snippet_2}, {&snippet_3, &snippet_4}, {&snippet_5, &snippet_6}, {&snippet_7, &snippet_8}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.SnippetSlice{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8, &snippet_9},
+			slice:     snippet.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8, &snippet_9},
 			batchSize: 5,
 			res: result{
-				batchedSlice: SnippetSliceBatched{{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5}, {&snippet_6, &snippet_7, &snippet_8, &snippet_9}},
+				batchedSlice: []snippet.Snippets{{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5}, {&snippet_6, &snippet_7, &snippet_8, &snippet_9}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.SnippetSlice{},
+			slice:     snippet.Snippets{},
 			batchSize: 5,
 			res: result{
-				batchedSlice: SnippetSliceBatched{},
+				batchedSlice: []snippet.Snippets{{}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.SnippetSlice{&snippet_1, &snippet_3, &snippet_8},
+			slice:     snippet.Snippets{&snippet_1, &snippet_3, &snippet_8},
 			batchSize: 2,
 			res: result{
-				batchedSlice: SnippetSliceBatched{{&snippet_1, &snippet_3}, {&snippet_8}},
+				batchedSlice: []snippet.Snippets{{&snippet_1, &snippet_3}, {&snippet_8}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.SnippetSlice{&snippet_1, &snippet_3, &snippet_8, &snippet_empty},
+			slice:     snippet.Snippets{&snippet_1, &snippet_3, &snippet_8, &snippet_empty},
 			batchSize: 5,
 			res: result{
-				batchedSlice: SnippetSliceBatched{{&snippet_1, &snippet_3, &snippet_8, &snippet_empty}},
+				batchedSlice: []snippet.Snippets{{&snippet_1, &snippet_3, &snippet_8, &snippet_empty}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.SnippetSlice{&snippet_empty},
+			slice:     snippet.Snippets{&snippet_empty},
 			batchSize: 5,
 			res: result{
-				batchedSlice: SnippetSliceBatched{{&snippet_empty}},
+				batchedSlice: []snippet.Snippets{{&snippet_empty}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.SnippetSlice{&snippet_1, &snippet_3, &snippet_8, &snippet_empty},
+			slice:     snippet.Snippets{&snippet_1, &snippet_3, &snippet_8, &snippet_empty},
 			batchSize: 0,
 			res: result{
-				batchedSlice: SnippetSliceBatched{},
+				batchedSlice: nil,
 				errExpected:  true,
 			},
 		},
 		{
 			res: result{
-				batchedSlice: SnippetSliceBatched{},
+				batchedSlice: nil,
 				errExpected:  true,
 			},
 		},
@@ -209,12 +207,12 @@ func TestSplitSnippetSlice(t *testing.T) {
 // =====================================================================
 
 // =====================================================================
-// TestReverseSnippetMap
 
+// TestReverseSnippetMap
 func TestReverseSnippetMap(t *testing.T) {
 	testSet := []struct {
 		snippetMap    snippet.SnippetMap
-		res           ReversedSnippetMap
+		res           map[*snippet.Snippet]uint64
 		panicExpected bool
 	}{
 		{
@@ -226,7 +224,7 @@ func TestReverseSnippetMap(t *testing.T) {
 				5: &snippet_11,
 				6: &snippet_19,
 			},
-			res: ReversedSnippetMap{
+			res: map[*snippet.Snippet]uint64{
 				&snippet_1:  1,
 				&snippet_3:  2,
 				&snippet_8:  3,
@@ -242,7 +240,7 @@ func TestReverseSnippetMap(t *testing.T) {
 				2: &snippet_3,
 				3: &snippet_n5,
 			},
-			res: ReversedSnippetMap{
+			res: map[*snippet.Snippet]uint64{
 				&snippet_1:  1,
 				&snippet_3:  2,
 				&snippet_n5: 3,
@@ -255,19 +253,19 @@ func TestReverseSnippetMap(t *testing.T) {
 				2: &snippet_3,
 				3: &snippet_1,
 			},
-			res:           ReversedSnippetMap{},
+			res:           map[*snippet.Snippet]uint64{},
 			panicExpected: true,
 		},
 		{
 			snippetMap:    snippet.SnippetMap{},
-			res:           ReversedSnippetMap{},
+			res:           map[*snippet.Snippet]uint64{},
 			panicExpected: false,
 		},
 		{
 			snippetMap: snippet.SnippetMap{
 				1: &snippet_1,
 			},
-			res: ReversedSnippetMap{
+			res: map[*snippet.Snippet]uint64{
 				&snippet_1: 1,
 			},
 			panicExpected: false,
@@ -307,70 +305,70 @@ func TestReverseSnippetMap(t *testing.T) {
 // =====================================================================
 
 // =====================================================================
-// TestFilterSnippetSlice
 
+// TestFilterSnippetSlice
 func TestFilterSnippetSlice(t *testing.T) {
 	testSet := []struct {
-		snippetSlice snippet.SnippetSlice
-		filter       snippet.SnippetSlice // в функции можно использовать как array, так и slice
-		res          snippet.SnippetSlice
+		snippetSlice snippet.Snippets
+		filter       snippet.Snippets // в функции можно использовать как array, так и slice
+		res          snippet.Snippets
 	}{
 		{
-			snippetSlice: snippet.SnippetSlice{&snippet_0, &snippet_1, &snippet_n5, &snippet_3},
-			filter:       snippet.SnippetSlice{&snippet_0, &snippet_3},
-			res:          snippet.SnippetSlice{&snippet_1, &snippet_n5},
+			snippetSlice: snippet.Snippets{&snippet_0, &snippet_1, &snippet_n5, &snippet_3},
+			filter:       snippet.Snippets{&snippet_0, &snippet_3},
+			res:          snippet.Snippets{&snippet_1, &snippet_n5},
 		},
 		{
-			snippetSlice: snippet.SnippetSlice{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
-			filter:       snippet.SnippetSlice{&snippet_0, &snippet_3},
-			res:          snippet.SnippetSlice{&snippet_1},
+			snippetSlice: snippet.Snippets{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
+			filter:       snippet.Snippets{&snippet_0, &snippet_3},
+			res:          snippet.Snippets{&snippet_1},
 		},
 		{
-			snippetSlice: snippet.SnippetSlice{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
-			filter:       snippet.SnippetSlice{},
-			res:          snippet.SnippetSlice{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
+			snippetSlice: snippet.Snippets{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
+			filter:       snippet.Snippets{},
+			res:          snippet.Snippets{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
 		},
 		{
-			snippetSlice: snippet.SnippetSlice{},
-			filter:       snippet.SnippetSlice{&snippet_0, &snippet_3},
-			res:          snippet.SnippetSlice{},
+			snippetSlice: snippet.Snippets{},
+			filter:       snippet.Snippets{&snippet_0, &snippet_3},
+			res:          snippet.Snippets{},
 		},
 		{
-			snippetSlice: snippet.SnippetSlice{},
-			filter:       snippet.SnippetSlice{},
-			res:          snippet.SnippetSlice{},
+			snippetSlice: snippet.Snippets{},
+			filter:       snippet.Snippets{},
+			res:          snippet.Snippets{},
 		},
 		{
-			snippetSlice: snippet.SnippetSlice{&snippet_empty},
-			filter:       snippet.SnippetSlice{},
-			res:          snippet.SnippetSlice{&snippet_empty},
+			snippetSlice: snippet.Snippets{&snippet_empty},
+			filter:       snippet.Snippets{},
+			res:          snippet.Snippets{&snippet_empty},
 		},
 		{
-			snippetSlice: snippet.SnippetSlice{&snippet_empty},
-			filter:       snippet.SnippetSlice{&snippet_1},
-			res:          snippet.SnippetSlice{&snippet_empty},
+			snippetSlice: snippet.Snippets{&snippet_empty},
+			filter:       snippet.Snippets{&snippet_1},
+			res:          snippet.Snippets{&snippet_empty},
 		},
 		{
-			snippetSlice: snippet.SnippetSlice{&snippet_empty, &snippet_19},
-			filter:       snippet.SnippetSlice{&snippet_1, &snippet_empty},
-			res:          snippet.SnippetSlice{&snippet_19},
+			snippetSlice: snippet.Snippets{&snippet_empty, &snippet_19},
+			filter:       snippet.Snippets{&snippet_1, &snippet_empty},
+			res:          snippet.Snippets{&snippet_19},
 		},
 		{
-			snippetSlice: snippet.SnippetSlice{&snippet_empty},
-			filter:       snippet.SnippetSlice{&snippet_empty},
-			res:          snippet.SnippetSlice{},
+			snippetSlice: snippet.Snippets{&snippet_empty},
+			filter:       snippet.Snippets{&snippet_empty},
+			res:          snippet.Snippets{},
 		},
 		{
-			snippetSlice: snippet.SnippetSlice{&snippet_1, &snippet_8},
-			filter:       snippet.SnippetSlice{&snippet_1, &snippet_8},
-			res:          snippet.SnippetSlice{},
+			snippetSlice: snippet.Snippets{&snippet_1, &snippet_8},
+			filter:       snippet.Snippets{&snippet_1, &snippet_8},
+			res:          snippet.Snippets{},
 		},
 		{
-			snippetSlice: snippet.SnippetSlice{&snippet_1, &snippet_8},
-			res:          snippet.SnippetSlice{&snippet_1, &snippet_8},
+			snippetSlice: snippet.Snippets{&snippet_1, &snippet_8},
+			res:          snippet.Snippets{&snippet_1, &snippet_8},
 		},
 		{
-			filter: snippet.SnippetSlice{&snippet_1, &snippet_8},
+			filter: snippet.Snippets{&snippet_1, &snippet_8},
 			res:    nil,
 		},
 	}
@@ -386,6 +384,7 @@ func TestFilterSnippetSlice(t *testing.T) {
 // =====================================================================
 
 // =====================================================================
+
 // TestSliceToMap
 func TestSliceToMap(t *testing.T) {
 	type result struct {
@@ -394,44 +393,44 @@ func TestSliceToMap(t *testing.T) {
 	}
 
 	testSet := []struct {
-		slice snippet.SnippetSlice
+		slice snippet.Snippets
 		res   result
 	}{
 		{
-			slice: snippet.SnippetSlice{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
+			slice: snippet.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
 			res: result{
 				snippetMap: snippet.SnippetMap{
-					snippet_1.UserId: &snippet_1,
-					snippet_2.UserId: &snippet_2,
-					snippet_3.UserId: &snippet_3,
-					snippet_4.UserId: &snippet_4,
-					snippet_5.UserId: &snippet_5,
-					snippet_6.UserId: &snippet_6,
-					snippet_7.UserId: &snippet_7,
-					snippet_8.UserId: &snippet_8,
+					snippet_1.Id: &snippet_1,
+					snippet_2.Id: &snippet_2,
+					snippet_3.Id: &snippet_3,
+					snippet_4.Id: &snippet_4,
+					snippet_5.Id: &snippet_5,
+					snippet_6.Id: &snippet_6,
+					snippet_7.Id: &snippet_7,
+					snippet_8.Id: &snippet_8,
 				},
 				errExpected: false,
 			},
 		},
 		{
-			slice: snippet.SnippetSlice{&snippet_1, &snippet_5, &snippet_6, &snippet_7, &snippet_8, &snippet_1},
+			slice: snippet.Snippets{&snippet_1, &snippet_5, &snippet_6, &snippet_7, &snippet_8, &snippet_1},
 			res: result{
 				snippetMap:  snippet.SnippetMap{},
 				errExpected: true,
 			},
 		},
 		{
-			slice: snippet.SnippetSlice{},
+			slice: snippet.Snippets{},
 			res: result{
 				snippetMap:  snippet.SnippetMap{},
 				errExpected: false,
 			},
 		},
 		{
-			slice: snippet.SnippetSlice{&snippet_empty},
+			slice: snippet.Snippets{&snippet_empty},
 			res: result{
 				snippetMap: snippet.SnippetMap{
-					snippet_empty.UserId: &snippet_empty,
+					snippet_empty.Id: &snippet_empty,
 				},
 				errExpected: false,
 			},
