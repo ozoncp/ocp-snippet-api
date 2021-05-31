@@ -46,6 +46,11 @@ func task3(path string, openCount uint) {
 	}
 	readFile := func(path string) (int, error) {
 		file, err := os.OpenFile(path, os.O_RDWR, 0600)
+
+		if err != nil {
+			return -1, err
+		}
+
 		defer file.Close()
 
 		cur, err := getLastValue(file)
