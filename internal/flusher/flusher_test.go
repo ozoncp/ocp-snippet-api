@@ -30,7 +30,7 @@ var _ = Describe("Flusher", func() {
 	Context("repo saves all tasks", func() {
 
 		BeforeEach(func() {
-			mockRepo.EXPECT().AddTasks(gomock.Any()).Return(nil)
+			mockRepo.EXPECT().AddSnippets(gomock.Any()).Return(nil)
 			mockPublisher.EXPECT().PublishFlushing(gomock.Any())
 		})
 	})

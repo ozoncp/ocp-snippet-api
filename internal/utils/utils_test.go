@@ -3,26 +3,26 @@ package utils
 import (
 	"testing"
 
-	"github.com/ozoncp/ocp-snippet-api/internal/snippet"
+	models "github.com/ozoncp/ocp-snippet-api/internal/snippet"
 )
 
 // =====================================================================
 // Testing snippets:
 var (
-	snippet_1     = snippet.Snippet{Id: 1}
-	snippet_2     = snippet.Snippet{Id: 2}
-	snippet_3     = snippet.Snippet{Id: 3}
-	snippet_4     = snippet.Snippet{Id: 4}
-	snippet_5     = snippet.Snippet{Id: 5}
-	snippet_6     = snippet.Snippet{Id: 6}
-	snippet_7     = snippet.Snippet{Id: 7}
-	snippet_8     = snippet.Snippet{Id: 8}
-	snippet_9     = snippet.Snippet{Id: 9}
-	snippet_n5    = snippet.Snippet{Id: 15}
-	snippet_11    = snippet.Snippet{Id: 11}
-	snippet_19    = snippet.Snippet{Id: 19}
-	snippet_0     = snippet.Snippet{Id: 0}
-	snippet_empty = snippet.Snippet{}
+	snippet_1     = models.Snippet{Id: 1}
+	snippet_2     = models.Snippet{Id: 2}
+	snippet_3     = models.Snippet{Id: 3}
+	snippet_4     = models.Snippet{Id: 4}
+	snippet_5     = models.Snippet{Id: 5}
+	snippet_6     = models.Snippet{Id: 6}
+	snippet_7     = models.Snippet{Id: 7}
+	snippet_8     = models.Snippet{Id: 8}
+	snippet_9     = models.Snippet{Id: 9}
+	snippet_n5    = models.Snippet{Id: 15}
+	snippet_11    = models.Snippet{Id: 11}
+	snippet_19    = models.Snippet{Id: 19}
+	snippet_0     = models.Snippet{Id: 0}
+	snippet_empty = models.Snippet{}
 )
 
 // =====================================================================
@@ -30,7 +30,7 @@ var (
 // =====================================================================
 // Compare functions:
 
-func compareSnippetSlices(l *snippet.Snippets, r *snippet.Snippets) bool {
+func compareSnippetSlices(l *models.Snippets, r *models.Snippets) bool {
 	if len(*l) != len(*r) {
 		return false
 	}
@@ -44,10 +44,10 @@ func compareSnippetSlices(l *snippet.Snippets, r *snippet.Snippets) bool {
 	return true
 }
 
-// compareSnippetSliceBatched - функция сравнения слайсов батчей ([]snippet.Snippets).
+// compareSnippetSliceBatched - функция сравнения слайсов батчей ([]models.Snippets).
 // Считает слайсы батчей равными, если их длины равны, длины батчей равны и указатели на сниппеты либо значения снипеттов равны
 // (тестируемая функция не делает глубокого копирования, однако функция сравнения рассматривает и такой кейс).
-func compareSnippetSliceBatched(l *[]snippet.Snippets, r *[]snippet.Snippets) bool {
+func compareSnippetSliceBatched(l *[]models.Snippets, r *[]models.Snippets) bool {
 	if len(*l) != len(*r) {
 		return false
 	}
@@ -60,7 +60,7 @@ func compareSnippetSliceBatched(l *[]snippet.Snippets, r *[]snippet.Snippets) bo
 
 	return true
 }
-func compareReversedSnippetMaps(l *map[*snippet.Snippet]uint64, r *map[*snippet.Snippet]uint64) bool {
+func compareReversedSnippetMaps(l *map[*models.Snippet]uint64, r *map[*models.Snippet]uint64) bool {
 	if len(*l) != len(*r) {
 		return false
 	}
@@ -73,7 +73,7 @@ func compareReversedSnippetMaps(l *map[*snippet.Snippet]uint64, r *map[*snippet.
 
 	return true
 }
-func compareSnippetMaps(l *snippet.SnippetMap, r *snippet.SnippetMap) bool {
+func compareSnippetMaps(l *models.SnippetMap, r *models.SnippetMap) bool {
 	if len(*l) != len(*r) {
 		return false
 	}
@@ -94,81 +94,81 @@ func compareSnippetMaps(l *snippet.SnippetMap, r *snippet.SnippetMap) bool {
 // TestSplitSnippetSlice
 func TestSplitSnippetSlice(t *testing.T) {
 	type result struct {
-		batchedSlice []snippet.Snippets
+		batchedSlice []models.Snippets
 		errExpected  bool
 	}
 
 	testSet := []struct {
-		slice     snippet.Snippets
+		slice     models.Snippets
 		batchSize uint
 		res       result
 	}{
 		{
-			slice:     snippet.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
+			slice:     models.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
 			batchSize: 3,
 			res: result{
-				batchedSlice: []snippet.Snippets{{&snippet_1, &snippet_2, &snippet_3}, {&snippet_4, &snippet_5, &snippet_6}, {&snippet_7, &snippet_8}},
+				batchedSlice: []models.Snippets{{&snippet_1, &snippet_2, &snippet_3}, {&snippet_4, &snippet_5, &snippet_6}, {&snippet_7, &snippet_8}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.Snippets{&snippet_1},
+			slice:     models.Snippets{&snippet_1},
 			batchSize: 3,
 			res: result{
-				batchedSlice: []snippet.Snippets{{&snippet_1}},
+				batchedSlice: []models.Snippets{{&snippet_1}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
+			slice:     models.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
 			batchSize: 2,
 			res: result{
-				batchedSlice: []snippet.Snippets{{&snippet_1, &snippet_2}, {&snippet_3, &snippet_4}, {&snippet_5, &snippet_6}, {&snippet_7, &snippet_8}},
+				batchedSlice: []models.Snippets{{&snippet_1, &snippet_2}, {&snippet_3, &snippet_4}, {&snippet_5, &snippet_6}, {&snippet_7, &snippet_8}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8, &snippet_9},
+			slice:     models.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8, &snippet_9},
 			batchSize: 5,
 			res: result{
-				batchedSlice: []snippet.Snippets{{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5}, {&snippet_6, &snippet_7, &snippet_8, &snippet_9}},
+				batchedSlice: []models.Snippets{{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5}, {&snippet_6, &snippet_7, &snippet_8, &snippet_9}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.Snippets{},
+			slice:     models.Snippets{},
 			batchSize: 5,
 			res: result{
-				batchedSlice: []snippet.Snippets{{}},
+				batchedSlice: []models.Snippets{{}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.Snippets{&snippet_1, &snippet_3, &snippet_8},
+			slice:     models.Snippets{&snippet_1, &snippet_3, &snippet_8},
 			batchSize: 2,
 			res: result{
-				batchedSlice: []snippet.Snippets{{&snippet_1, &snippet_3}, {&snippet_8}},
+				batchedSlice: []models.Snippets{{&snippet_1, &snippet_3}, {&snippet_8}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.Snippets{&snippet_1, &snippet_3, &snippet_8, &snippet_empty},
+			slice:     models.Snippets{&snippet_1, &snippet_3, &snippet_8, &snippet_empty},
 			batchSize: 5,
 			res: result{
-				batchedSlice: []snippet.Snippets{{&snippet_1, &snippet_3, &snippet_8, &snippet_empty}},
+				batchedSlice: []models.Snippets{{&snippet_1, &snippet_3, &snippet_8, &snippet_empty}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.Snippets{&snippet_empty},
+			slice:     models.Snippets{&snippet_empty},
 			batchSize: 5,
 			res: result{
-				batchedSlice: []snippet.Snippets{{&snippet_empty}},
+				batchedSlice: []models.Snippets{{&snippet_empty}},
 				errExpected:  false,
 			},
 		},
 		{
-			slice:     snippet.Snippets{&snippet_1, &snippet_3, &snippet_8, &snippet_empty},
+			slice:     models.Snippets{&snippet_1, &snippet_3, &snippet_8, &snippet_empty},
 			batchSize: 0,
 			res: result{
 				batchedSlice: nil,
@@ -211,12 +211,12 @@ func TestSplitSnippetSlice(t *testing.T) {
 // TestReverseSnippetMap
 func TestReverseSnippetMap(t *testing.T) {
 	testSet := []struct {
-		snippetMap    snippet.SnippetMap
-		res           map[*snippet.Snippet]uint64
+		snippetMap    models.SnippetMap
+		res           map[*models.Snippet]uint64
 		panicExpected bool
 	}{
 		{
-			snippetMap: snippet.SnippetMap{
+			snippetMap: models.SnippetMap{
 				1: &snippet_1,
 				2: &snippet_3,
 				3: &snippet_8,
@@ -224,7 +224,7 @@ func TestReverseSnippetMap(t *testing.T) {
 				5: &snippet_11,
 				6: &snippet_19,
 			},
-			res: map[*snippet.Snippet]uint64{
+			res: map[*models.Snippet]uint64{
 				&snippet_1:  1,
 				&snippet_3:  2,
 				&snippet_8:  3,
@@ -235,12 +235,12 @@ func TestReverseSnippetMap(t *testing.T) {
 			panicExpected: false,
 		},
 		{
-			snippetMap: snippet.SnippetMap{
+			snippetMap: models.SnippetMap{
 				1: &snippet_1,
 				2: &snippet_3,
 				3: &snippet_n5,
 			},
-			res: map[*snippet.Snippet]uint64{
+			res: map[*models.Snippet]uint64{
 				&snippet_1:  1,
 				&snippet_3:  2,
 				&snippet_n5: 3,
@@ -248,24 +248,24 @@ func TestReverseSnippetMap(t *testing.T) {
 			panicExpected: false,
 		},
 		{
-			snippetMap: snippet.SnippetMap{
+			snippetMap: models.SnippetMap{
 				1: &snippet_1,
 				2: &snippet_3,
 				3: &snippet_1,
 			},
-			res:           map[*snippet.Snippet]uint64{},
+			res:           map[*models.Snippet]uint64{},
 			panicExpected: true,
 		},
 		{
-			snippetMap:    snippet.SnippetMap{},
-			res:           map[*snippet.Snippet]uint64{},
+			snippetMap:    models.SnippetMap{},
+			res:           map[*models.Snippet]uint64{},
 			panicExpected: false,
 		},
 		{
-			snippetMap: snippet.SnippetMap{
+			snippetMap: models.SnippetMap{
 				1: &snippet_1,
 			},
-			res: map[*snippet.Snippet]uint64{
+			res: map[*models.Snippet]uint64{
 				&snippet_1: 1,
 			},
 			panicExpected: false,
@@ -309,66 +309,66 @@ func TestReverseSnippetMap(t *testing.T) {
 // TestFilterSnippetSlice
 func TestFilterSnippetSlice(t *testing.T) {
 	testSet := []struct {
-		snippetSlice snippet.Snippets
-		filter       snippet.Snippets // в функции можно использовать как array, так и slice
-		res          snippet.Snippets
+		snippetSlice models.Snippets
+		filter       models.Snippets // в функции можно использовать как array, так и slice
+		res          models.Snippets
 	}{
 		{
-			snippetSlice: snippet.Snippets{&snippet_0, &snippet_1, &snippet_n5, &snippet_3},
-			filter:       snippet.Snippets{&snippet_0, &snippet_3},
-			res:          snippet.Snippets{&snippet_1, &snippet_n5},
+			snippetSlice: models.Snippets{&snippet_0, &snippet_1, &snippet_n5, &snippet_3},
+			filter:       models.Snippets{&snippet_0, &snippet_3},
+			res:          models.Snippets{&snippet_1, &snippet_n5},
 		},
 		{
-			snippetSlice: snippet.Snippets{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
-			filter:       snippet.Snippets{&snippet_0, &snippet_3},
-			res:          snippet.Snippets{&snippet_1},
+			snippetSlice: models.Snippets{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
+			filter:       models.Snippets{&snippet_0, &snippet_3},
+			res:          models.Snippets{&snippet_1},
 		},
 		{
-			snippetSlice: snippet.Snippets{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
-			filter:       snippet.Snippets{},
-			res:          snippet.Snippets{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
+			snippetSlice: models.Snippets{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
+			filter:       models.Snippets{},
+			res:          models.Snippets{&snippet_0, &snippet_1, &snippet_0, &snippet_3},
 		},
 		{
-			snippetSlice: snippet.Snippets{},
-			filter:       snippet.Snippets{&snippet_0, &snippet_3},
-			res:          snippet.Snippets{},
+			snippetSlice: models.Snippets{},
+			filter:       models.Snippets{&snippet_0, &snippet_3},
+			res:          models.Snippets{},
 		},
 		{
-			snippetSlice: snippet.Snippets{},
-			filter:       snippet.Snippets{},
-			res:          snippet.Snippets{},
+			snippetSlice: models.Snippets{},
+			filter:       models.Snippets{},
+			res:          models.Snippets{},
 		},
 		{
-			snippetSlice: snippet.Snippets{&snippet_empty},
-			filter:       snippet.Snippets{},
-			res:          snippet.Snippets{&snippet_empty},
+			snippetSlice: models.Snippets{&snippet_empty},
+			filter:       models.Snippets{},
+			res:          models.Snippets{&snippet_empty},
 		},
 		{
-			snippetSlice: snippet.Snippets{&snippet_empty},
-			filter:       snippet.Snippets{&snippet_1},
-			res:          snippet.Snippets{&snippet_empty},
+			snippetSlice: models.Snippets{&snippet_empty},
+			filter:       models.Snippets{&snippet_1},
+			res:          models.Snippets{&snippet_empty},
 		},
 		{
-			snippetSlice: snippet.Snippets{&snippet_empty, &snippet_19},
-			filter:       snippet.Snippets{&snippet_1, &snippet_empty},
-			res:          snippet.Snippets{&snippet_19},
+			snippetSlice: models.Snippets{&snippet_empty, &snippet_19},
+			filter:       models.Snippets{&snippet_1, &snippet_empty},
+			res:          models.Snippets{&snippet_19},
 		},
 		{
-			snippetSlice: snippet.Snippets{&snippet_empty},
-			filter:       snippet.Snippets{&snippet_empty},
-			res:          snippet.Snippets{},
+			snippetSlice: models.Snippets{&snippet_empty},
+			filter:       models.Snippets{&snippet_empty},
+			res:          models.Snippets{},
 		},
 		{
-			snippetSlice: snippet.Snippets{&snippet_1, &snippet_8},
-			filter:       snippet.Snippets{&snippet_1, &snippet_8},
-			res:          snippet.Snippets{},
+			snippetSlice: models.Snippets{&snippet_1, &snippet_8},
+			filter:       models.Snippets{&snippet_1, &snippet_8},
+			res:          models.Snippets{},
 		},
 		{
-			snippetSlice: snippet.Snippets{&snippet_1, &snippet_8},
-			res:          snippet.Snippets{&snippet_1, &snippet_8},
+			snippetSlice: models.Snippets{&snippet_1, &snippet_8},
+			res:          models.Snippets{&snippet_1, &snippet_8},
 		},
 		{
-			filter: snippet.Snippets{&snippet_1, &snippet_8},
+			filter: models.Snippets{&snippet_1, &snippet_8},
 			res:    nil,
 		},
 	}
@@ -388,18 +388,18 @@ func TestFilterSnippetSlice(t *testing.T) {
 // TestSliceToMap
 func TestSliceToMap(t *testing.T) {
 	type result struct {
-		snippetMap  snippet.SnippetMap
+		snippetMap  models.SnippetMap
 		errExpected bool
 	}
 
 	testSet := []struct {
-		slice snippet.Snippets
+		slice models.Snippets
 		res   result
 	}{
 		{
-			slice: snippet.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
+			slice: models.Snippets{&snippet_1, &snippet_2, &snippet_3, &snippet_4, &snippet_5, &snippet_6, &snippet_7, &snippet_8},
 			res: result{
-				snippetMap: snippet.SnippetMap{
+				snippetMap: models.SnippetMap{
 					snippet_1.Id: &snippet_1,
 					snippet_2.Id: &snippet_2,
 					snippet_3.Id: &snippet_3,
@@ -413,23 +413,23 @@ func TestSliceToMap(t *testing.T) {
 			},
 		},
 		{
-			slice: snippet.Snippets{&snippet_1, &snippet_5, &snippet_6, &snippet_7, &snippet_8, &snippet_1},
+			slice: models.Snippets{&snippet_1, &snippet_5, &snippet_6, &snippet_7, &snippet_8, &snippet_1},
 			res: result{
-				snippetMap:  snippet.SnippetMap{},
+				snippetMap:  models.SnippetMap{},
 				errExpected: true,
 			},
 		},
 		{
-			slice: snippet.Snippets{},
+			slice: models.Snippets{},
 			res: result{
-				snippetMap:  snippet.SnippetMap{},
+				snippetMap:  models.SnippetMap{},
 				errExpected: false,
 			},
 		},
 		{
-			slice: snippet.Snippets{&snippet_empty},
+			slice: models.Snippets{&snippet_empty},
 			res: result{
-				snippetMap: snippet.SnippetMap{
+				snippetMap: models.SnippetMap{
 					snippet_empty.Id: &snippet_empty,
 				},
 				errExpected: false,

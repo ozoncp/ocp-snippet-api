@@ -1,15 +1,12 @@
 package repo
 
 import (
-	"github.com/ozoncp/ocp-snippet-api/internal/snippet" // TO BE REPLACED!
+	models "github.com/ozoncp/ocp-snippet-api/internal/snippet"
 )
 
 type Repo interface {
-	// TO BE FIXED: заменить входной параметр на []models.Task, когда ocp-task-api будет доступен для скачивания.
-	AddTasks(task []*snippet.Snippet) error
-	RemoveTask(taskId uint64) error
-	// TO BE FIXED: заменить выходной параметр на *models.Task, когда ocp-task-api будет доступен для скачивания.
-	DescribeTask(taskId uint64) (*snippet.Snippet, error)
-	// TO BE FIXED: заменить выходной параметр на []models.Task, когда ocp-task-api будет доступен для скачивания.
-	ListTasks(limit, offset uint64) ([]*snippet.Snippet, error)
+	AddSnippets(task models.Snippets) error
+	RemoveSnippet(taskId uint64) error
+	DescribeSnippet(taskId uint64) (*models.Snippet, error)
+	ListSnippets(limit, offset uint64) (models.Snippets, error)
 }
