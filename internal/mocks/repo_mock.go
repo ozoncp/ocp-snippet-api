@@ -8,7 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	models "github.com/ozoncp/ocp-snippet-api/internal/snippet"
+	models "github.com/ozoncp/ocp-snippet-api/internal/models"
 )
 
 // MockRepo is a mock of Repo interface.
@@ -35,7 +35,7 @@ func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 }
 
 // AddSnippets mocks base method.
-func (m *MockRepo) AddSnippets(arg0 []*models.Snippet) error {
+func (m *MockRepo) AddSnippets(arg0 []models.Snippet) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddSnippets", arg0)
 	ret0, _ := ret[0].(error)
@@ -64,10 +64,10 @@ func (mr *MockRepoMockRecorder) DescribeSnippet(arg0 interface{}) *gomock.Call {
 }
 
 // ListSnippets mocks base method.
-func (m *MockRepo) ListSnippets(arg0, arg1 uint64) ([]*models.Snippet, error) {
+func (m *MockRepo) ListSnippets(arg0, arg1 uint64) ([]models.Snippet, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListSnippets", arg0, arg1)
-	ret0, _ := ret[0].([]*models.Snippet)
+	ret0, _ := ret[0].([]models.Snippet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

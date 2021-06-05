@@ -2,30 +2,30 @@ package flusher
 
 import (
 	"github.com/ozoncp/ocp-snippet-api/internal/metrics"
+	"github.com/ozoncp/ocp-snippet-api/internal/models"
 	"github.com/ozoncp/ocp-snippet-api/internal/repo"
-	models "github.com/ozoncp/ocp-snippet-api/internal/snippet"
 	"github.com/ozoncp/ocp-snippet-api/internal/utils"
 )
 
 type Flusher interface {
-	Flush(task models.Snippets) models.Snippets
+	Flush(snippets []models.Snippet) []models.Snippet
 }
 
 type flusher struct {
-	chunckSize uint
-	repo       repo.Repo
-	publicher  metrics.Publisher
+	chunkSize uint
+	repo      repo.Repo
+	publicher metrics.Publisher
 }
 
-func (f flusher) Flush(task models.Snippets) models.Snippets {
-	batches, err := utils.SplitSnippetSlice(&task, f.chunckSize)
+func (f flusher) Flush(snippets []models.Snippet) []models.Snippet {
+	batches, err := utils.SplitSnippetSlice(snippets, f.chunkSize)
 
 	if err != nil {
 		f.publicher.PublishFlushing(0)
-		return task
+		return snippets
 	}
 
-	res := make([]*models.Snippet, 0, len(task))
+	res := make([]models.Snippet, 0, len(snippets))
 
 	for _, batch := range batches {
 		if err := f.repo.AddSnippets(batch); err != nil {
@@ -33,7 +33,7 @@ func (f flusher) Flush(task models.Snippets) models.Snippets {
 		}
 	}
 
-	f.publicher.PublishFlushing(len(task) - len(res))
+	f.publicher.PublishFlushing(len(snippets) - len(res))
 
 	if len(res) > 0 {
 		return res
@@ -42,9 +42,11 @@ func (f flusher) Flush(task models.Snippets) models.Snippets {
 	return nil
 }
 
-func New(repo repo.Repo) Flusher {
+func New(chunkSize uint, repo repo.Repo, publicher metrics.Publisher) Flusher {
 	return &flusher{
-		repo: repo,
+		chunkSize: chunkSize,
+		repo:      repo,
+		publicher: publicher,
 	}
 }
 
