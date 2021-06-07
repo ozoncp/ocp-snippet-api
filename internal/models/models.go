@@ -1,4 +1,4 @@
-package snippet
+package models
 
 import (
 	"strconv"
@@ -11,8 +11,6 @@ type Snippet struct {
 	Test       string
 	Language   string
 }
-type Snippets = []*Snippet
-type SnippetMap = map[uint64]*Snippet
 
 func String(snippetPtr *Snippet) string {
 	return "Snippet {" + "\n\t" +
