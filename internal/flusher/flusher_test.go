@@ -21,6 +21,7 @@ var _ = Describe("Flush", func() {
 		batchSize uint
 		input     []models.Snippet
 		rest      []models.Snippet
+		err       error
 	)
 
 	BeforeEach(func() {
@@ -34,12 +35,8 @@ var _ = Describe("Flush", func() {
 	})
 
 	JustBeforeEach(func() {
-		// Создать экземпляр Flush с помощью New( mockRepo )
-		// позвать Flush
-		// записать рез-т в rest
-
 		fl := flusher.New(batchSize, mockRepo, mockPublisher)
-		rest = fl.Flush(input)
+		rest, err = fl.Flush(input)
 	})
 
 	AfterEach(func() {
@@ -49,13 +46,13 @@ var _ = Describe("Flush", func() {
 	Context("repo saves all snippets", func() {
 
 		BeforeEach(func() {
-			mockRepo.EXPECT().AddSnippets(gomock.Any()).Return(nil)
+			mockRepo.EXPECT().AddSnippets(gomock.Any()).MinTimes(2).Return(nil)
 			mockPublisher.EXPECT().PublishFlushing(gomock.Any())
 		})
 
 		It("all saved", func() {
-			// проверка рез-та (rest)
 			gomega.Expect(len(rest)).To(gomega.Equal(0))
+			gomega.Expect(err).To(gomega.BeNil())
 		})
 
 	})
@@ -69,8 +66,8 @@ var _ = Describe("Flush", func() {
 		})
 
 		It("nothing to save", func() {
-			// проверка рез-та (rest)
 			gomega.Expect(len(rest)).To(gomega.Equal(len(input)))
+			gomega.Expect(err).NotTo(gomega.BeNil())
 		})
 
 	})
@@ -85,8 +82,8 @@ var _ = Describe("Flush", func() {
 		})
 
 		It("nothing to save", func() {
-			// проверка рез-та (rest)
 			gomega.Expect(len(rest)).To(gomega.Equal(0))
+			gomega.Expect(err).To(gomega.BeNil())
 		})
 
 	})
@@ -103,6 +100,7 @@ var _ = Describe("Flush", func() {
 		It("all saved", func() {
 			// проверка рез-та (rest)
 			gomega.Expect(len(rest)).To(gomega.Equal(0))
+			gomega.Expect(err).To(gomega.BeNil())
 		})
 
 	})
