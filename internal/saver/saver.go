@@ -35,7 +35,8 @@ func NewSaver(capacity uint, flusher flusher.Flusher, saveInterval uint) Saver {
 }
 
 func (s saver) Save(snippets []models.Snippet) error {
-	snippets, err := s.flusher.Flush(snippets)
+	resSnippets, err := s.flusher.Flush(snippets)
+	s.snippets = resSnippets
 
 	return err
 }
