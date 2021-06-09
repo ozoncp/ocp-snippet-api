@@ -3,7 +3,7 @@ package flusher_test
 import (
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
-	"github.com/onsi/gomega"
+	. "github.com/onsi/gomega"
 
 	"github.com/ozoncp/ocp-snippet-api/internal/flusher"
 	"github.com/ozoncp/ocp-snippet-api/internal/mocks"
@@ -21,6 +21,7 @@ var _ = Describe("Flush", func() {
 		batchSize uint
 		input     []models.Snippet
 		rest      []models.Snippet
+		err       error
 	)
 
 	BeforeEach(func() {
@@ -34,12 +35,8 @@ var _ = Describe("Flush", func() {
 	})
 
 	JustBeforeEach(func() {
-		// Создать экземпляр Flush с помощью New( mockRepo )
-		// позвать Flush
-		// записать рез-т в rest
-
 		fl := flusher.New(batchSize, mockRepo, mockPublisher)
-		rest = fl.Flush(input)
+		rest, err = fl.Flush(input)
 	})
 
 	AfterEach(func() {
@@ -49,13 +46,13 @@ var _ = Describe("Flush", func() {
 	Context("repo saves all snippets", func() {
 
 		BeforeEach(func() {
-			mockRepo.EXPECT().AddSnippets(gomock.Any()).Return(nil)
+			mockRepo.EXPECT().AddSnippets(gomock.Any()).MinTimes(2).Return(nil)
 			mockPublisher.EXPECT().PublishFlushing(gomock.Any())
 		})
 
 		It("all saved", func() {
-			// проверка рез-та (rest)
-			gomega.Expect(len(rest)).To(gomega.Equal(0))
+			Expect(len(rest)).To(Equal(0))
+			Expect(err).To(BeNil())
 		})
 
 	})
@@ -69,8 +66,8 @@ var _ = Describe("Flush", func() {
 		})
 
 		It("nothing to save", func() {
-			// проверка рез-та (rest)
-			gomega.Expect(len(rest)).To(gomega.Equal(len(input)))
+			Expect(len(rest)).To(Equal(len(input)))
+			Expect(err).NotTo(BeNil())
 		})
 
 	})
@@ -85,8 +82,8 @@ var _ = Describe("Flush", func() {
 		})
 
 		It("nothing to save", func() {
-			// проверка рез-та (rest)
-			gomega.Expect(len(rest)).To(gomega.Equal(0))
+			Expect(len(rest)).To(Equal(0))
+			Expect(err).To(BeNil())
 		})
 
 	})
@@ -102,7 +99,8 @@ var _ = Describe("Flush", func() {
 
 		It("all saved", func() {
 			// проверка рез-та (rest)
-			gomega.Expect(len(rest)).To(gomega.Equal(0))
+			Expect(len(rest)).To(Equal(0))
+			Expect(err).To(BeNil())
 		})
 
 	})

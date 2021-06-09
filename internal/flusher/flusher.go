@@ -8,7 +8,7 @@ import (
 )
 
 type Flusher interface {
-	Flush(snippets []models.Snippet) []models.Snippet
+	Flush(snippets []models.Snippet) ([]models.Snippet, error)
 }
 
 type flusher struct {
@@ -17,18 +17,18 @@ type flusher struct {
 	publicher metrics.Publisher
 }
 
-func (f flusher) Flush(snippets []models.Snippet) []models.Snippet {
+func (f flusher) Flush(snippets []models.Snippet) ([]models.Snippet, error) {
 	batches, err := utils.SplitSnippetSlice(snippets, f.chunkSize)
 
 	if err != nil {
 		f.publicher.PublishFlushing(0)
-		return snippets
+		return snippets, err
 	}
 
 	res := make([]models.Snippet, 0, len(snippets))
 
 	for _, batch := range batches {
-		if err := f.repo.AddSnippets(batch); err != nil {
+		if err = f.repo.AddSnippets(batch); err != nil {
 			res = append(res, batch...)
 		}
 	}
@@ -36,10 +36,11 @@ func (f flusher) Flush(snippets []models.Snippet) []models.Snippet {
 	f.publicher.PublishFlushing(len(snippets) - len(res))
 
 	if len(res) > 0 {
-		return res
+		// Вернёт только последнюю ошибку...
+		return res, err
 	}
 
-	return nil
+	return nil, nil
 }
 
 func New(chunkSize uint, repo repo.Repo, publicher metrics.Publisher) Flusher {
