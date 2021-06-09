@@ -11,22 +11,22 @@ import (
 type Saver interface {
 	Save(snippets []models.Snippet) error
 	Init()
-	Close() error
+	Close()
 }
 
 type saver struct {
 	flusher  flusher.Flusher
 	snippets []models.Snippet
 
-	saveInterval uint
+	saveInterval time.Duration
 	doneCh       chan struct{}
 }
 
 // NewSaver возвращает Save с поддержкой периодического сохранения.
 // capacity - capacity слайса сохраняемых сущностей.
 // flusher - экземпляр интерфейса flusher.Flusher, осуществляющий сохранения.
-// saveInterval - интервал сохранения в секундах.
-func NewSaver(capacity uint, flusher flusher.Flusher, saveInterval uint) Saver {
+// saveInterval - интервал сохранения
+func NewSaver(capacity uint, flusher flusher.Flusher, saveInterval time.Duration) Saver {
 	return &saver{
 		flusher:      flusher,
 		snippets:     make([]models.Snippet, 0, capacity),
@@ -45,21 +45,25 @@ func (s saver) Init() {
 	go s.initSaverLoop()
 }
 
-func (s saver) Close() error {
+func (s saver) Close() {
 	close(s.doneCh)
-	return s.Save(s.snippets)
 }
 
 func (s saver) initSaverLoop() {
-	ticker := time.NewTicker(time.Second * time.Duration(s.saveInterval))
+	ticker := time.NewTicker(s.saveInterval)
 	defer ticker.Stop()
+
+	save := func() {
+		if err := s.Save(s.snippets); err != nil {
+			fmt.Printf("Error while saving snippets: %s", err.Error()) // TO DE FIXED: надо бы писать в лог...
+		}
+	}
 	for {
 		select {
 		case <-ticker.C:
-			if err := s.Save(s.snippets); err != nil {
-				fmt.Printf("Error while saving snippets: %s", err.Error()) // TO DE FIXED: надо бы писать в лог...
-			}
+			save()
 		case <-s.doneCh:
+			save()
 			return
 		}
 	}

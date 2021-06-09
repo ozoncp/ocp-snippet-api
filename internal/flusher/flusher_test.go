@@ -3,7 +3,7 @@ package flusher_test
 import (
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
-	"github.com/onsi/gomega"
+	. "github.com/onsi/gomega"
 
 	"github.com/ozoncp/ocp-snippet-api/internal/flusher"
 	"github.com/ozoncp/ocp-snippet-api/internal/mocks"
@@ -51,8 +51,8 @@ var _ = Describe("Flush", func() {
 		})
 
 		It("all saved", func() {
-			gomega.Expect(len(rest)).To(gomega.Equal(0))
-			gomega.Expect(err).To(gomega.BeNil())
+			Expect(len(rest)).To(Equal(0))
+			Expect(err).To(BeNil())
 		})
 
 	})
@@ -66,8 +66,8 @@ var _ = Describe("Flush", func() {
 		})
 
 		It("nothing to save", func() {
-			gomega.Expect(len(rest)).To(gomega.Equal(len(input)))
-			gomega.Expect(err).NotTo(gomega.BeNil())
+			Expect(len(rest)).To(Equal(len(input)))
+			Expect(err).NotTo(BeNil())
 		})
 
 	})
@@ -82,8 +82,8 @@ var _ = Describe("Flush", func() {
 		})
 
 		It("nothing to save", func() {
-			gomega.Expect(len(rest)).To(gomega.Equal(0))
-			gomega.Expect(err).To(gomega.BeNil())
+			Expect(len(rest)).To(Equal(0))
+			Expect(err).To(BeNil())
 		})
 
 	})
@@ -99,8 +99,8 @@ var _ = Describe("Flush", func() {
 
 		It("all saved", func() {
 			// проверка рез-та (rest)
-			gomega.Expect(len(rest)).To(gomega.Equal(0))
-			gomega.Expect(err).To(gomega.BeNil())
+			Expect(len(rest)).To(Equal(0))
+			Expect(err).To(BeNil())
 		})
 
 	})
