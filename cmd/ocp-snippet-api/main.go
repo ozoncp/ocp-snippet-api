@@ -8,10 +8,6 @@ import (
 	"net/http"
 
 	"context"
-	// "os"
-
-	// "github.com/rs/zerolog"
-	// "github.com/rs/zerolog/log"
 
 	"google.golang.org/grpc"
 
@@ -21,7 +17,6 @@ import (
 )
 
 const (
-	// grpcPort = ":12345"
 	grpcPort = 12345
 	httpPort = 54321
 )
