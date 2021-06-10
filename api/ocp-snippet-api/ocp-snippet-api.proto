@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+
+option go_package = "github.com/ozoncp/ocp-snippet-api/pkg/ocp-snippet-api;ocp_snippet_api";
+
+package ocp.snippet.api;
+
+service OcpSnippetApi {
+
+	//  Создаёт новый фрагмент решения
+	rpc CreateSnippetV1(CreateSnippetV1Request) returns (CreateSnippetV1Response) {
+		option (google.api.http) = {
+			post: "/snippets/create/v1"
+		};
+	}
+
+	// Возвращает фрагмент решения
+	rpc DescribeSnippetV1(DescribeSnippetV1Request) returns (DescribeSnippetV1Response) {
+		option (google.api.http) = {
+			get: "/snippets/describe/v1/{snippet_id}"
+		};
+    }
+	
+	// Возвращает список фрагментов решения
+	rpc ListSnippetsV1(ListSnippetsV1Request) returns (ListSnippetsV1Response) {
+		option (google.api.http) = {
+            get: "/snippets/list/v1"
+        };
+	}
+	
+	// Удаляет фрагмент решения
+	rpc RemoveSnippetV1(RemoveSnippetV1Request) returns (RemoveSnippetV1Response) {
+		option (google.api.http) = {
+			get: "/snippets/remove/v1/{snippet_id}"
+		};
+	}
+}
+
+// Создание:
+message CreateSnippetV1Request {
+	uint64 solution_id = 1;
+	uint64 user_id     = 2;
+	string text        = 3;
+	string language    = 4;
+}
+message CreateSnippetV1Response {
+	uint64 id = 1;
+}
+
+// Чтение:
+message DescribeSnippetV1Request {
+	uint64 snippet_id = 1 [(validate.rules).uint64.gt = 0];
+}
+message DescribeSnippetV1Response {
+	Snippet snippet = 1;
+}
+ 
+// Получение списка:
+message ListSnippetsV1Request {
+    uint64 limit = 1;
+    uint64 offset = 2;
+}
+message ListSnippetsV1Response {
+    repeated Snippet snippets = 1;
+}
+
+// Удаление:
+message RemoveSnippetV1Request {
+	uint64 snippet_id = 1 [(validate.rules).uint64.gt = 0];
+}
+message RemoveSnippetV1Response {
+	bool removed = 1;
+}
+
+
+message Snippet {
+    uint64 id          = 1;
+    uint64 solution_id = 2;
+	uint64 user_id     = 3;
+	string text        = 4;
+	string language    = 5;
+}
