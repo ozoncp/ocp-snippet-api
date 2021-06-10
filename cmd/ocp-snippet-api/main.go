@@ -27,7 +27,7 @@ var (
 )
 
 func run() error {
-	listen, err := net.Listen("tcp", grpcEndpoint)
+	listener, err := net.Listen("tcp", grpcEndpoint)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -38,7 +38,7 @@ func run() error {
 	go func() {
 		fmt.Printf("GRPC server listening on %s\n", grpcEndpoint)
 
-		if err := s.Serve(listen); err != nil {
+		if err := s.Serve(listener); err != nil {
 			log.Fatalf("failed to serve: %v", err)
 		}
 	}()

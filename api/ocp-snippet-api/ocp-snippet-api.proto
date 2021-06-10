@@ -26,14 +26,14 @@ service OcpSnippetApi {
 	// Возвращает список фрагментов решения
 	rpc ListSnippetsV1(ListSnippetsV1Request) returns (ListSnippetsV1Response) {
 		option (google.api.http) = {
-            get: "/snippets/list/v1"
+			get: "/snippets/list/v1"
         };
 	}
 	
 	// Удаляет фрагмент решения
 	rpc RemoveSnippetV1(RemoveSnippetV1Request) returns (RemoveSnippetV1Response) {
 		option (google.api.http) = {
-			get: "/snippets/remove/v1/{snippet_id}"
+			delete: "/snippets/remove/v1/{snippet_id}"
 		};
 	}
 }

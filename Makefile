@@ -22,13 +22,6 @@ PHONY: .build
 .build:
 		CGO_ENABLED=0 GOOS=linux go build -o bin/ocp-snippet-api cmd/ocp-snippet-api/main.go
 
-PHONY: install
-install: build .install
-
-PHONY: .install
-install:
-		go install cmd/grpc-server/main.go
-
 PHONY: vendor-proto
 vendor-proto: .vendor-proto
 
@@ -47,24 +40,3 @@ PHONY: .vendor-proto
 			mkdir -p vendor.protogen/github.com/envoyproxy &&\
 			git clone https://github.com/envoyproxy/protoc-gen-validate vendor.protogen/github.com/envoyproxy/protoc-gen-validate ;\
 		fi
-
-
-.PHONY: deps
-deps: install-go-deps
-
-.PHONY: install-go-deps
-install-go-deps: .install-go-deps
-
-.PHONY: .install-go-deps
-.install-go-deps:
-		ls go.mod || go mod init
-		go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-		go get -u github.com/golang/protobuf/proto
-		go get -u github.com/golang/protobuf/protoc-gen-go
-		go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
-		go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
-		tmpdir=$$(mktemp -d); cd $$tmpdir && export GO111MODULE=off \
-		  && go get -d github.com/envoyproxy/protoc-gen-validate \
-			&& cd $$(go env GOPATH)/src/github.com/envoyproxy/protoc-gen-validate && git checkout v0.1.0 \
-			&& go build -o $$(go env GOPATH)/bin/protoc-gen-validate $$(go env GOPATH)/src/github.com/envoyproxy/protoc-gen-validate/main.go \
-			&& cd -
