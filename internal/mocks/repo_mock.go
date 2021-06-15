@@ -79,11 +79,12 @@ func (mr *MockRepoMockRecorder) ListSnippets(arg0, arg1 interface{}) *gomock.Cal
 }
 
 // RemoveSnippet mocks base method.
-func (m *MockRepo) RemoveSnippet(arg0 uint64) error {
+func (m *MockRepo) RemoveSnippet(arg0 uint64) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemoveSnippet", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // RemoveSnippet indicates an expected call of RemoveSnippet.
