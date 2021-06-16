@@ -36,7 +36,7 @@ var _ = Describe("Api", func() {
 		}
 
 		ctx = context.Background()
-		repoDB = repo.NewRepoDB(db, ctx)
+		repoDB = repo.NewRepoDB(db)
 
 		apiServer = api.NewOcpSnippetApi(repoDB)
 	})
