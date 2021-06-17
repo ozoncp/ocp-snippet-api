@@ -11,6 +11,7 @@ import (
 	"context"
 
 	"google.golang.org/grpc"
+	// "google.golang.org/grpc/reflection"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	api "github.com/ozoncp/ocp-snippet-api/internal/api"
@@ -43,7 +44,6 @@ func createDB() *sql.DB {
 		dsn = fmt.Sprintf("%s:%d", dsn, port)
 	}
 	dsn = fmt.Sprintf("%s/%s", dsn, name)
-	fmt.Println(dsn)
 
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
@@ -62,9 +62,10 @@ func run() error {
 
 	ctx := context.Background()
 	s := grpc.NewServer()
+	// reflection.Register(s)
 
 	db := createDB()
-	repo := repo.NewRepoDB(db, ctx)
+	repo := repo.NewRepoDB(db)
 	defer db.Close()
 
 	desc.RegisterOcpSnippetApiServer(s, api.NewOcpSnippetApi(repo))
