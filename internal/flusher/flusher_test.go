@@ -46,7 +46,7 @@ var _ = Describe("Flush", func() {
 	Context("repo saves all snippets", func() {
 
 		BeforeEach(func() {
-			mockRepo.EXPECT().AddSnippets(gomock.Any()).MinTimes(2).Return(nil)
+			mockRepo.EXPECT().AddSnippets(gomock.Any(), gomock.Any()).MinTimes(2).Return(nil)
 			mockPublisher.EXPECT().PublishFlushing(gomock.Any())
 		})
 
@@ -77,7 +77,7 @@ var _ = Describe("Flush", func() {
 		BeforeEach(func() {
 			input = []models.Snippet{}
 
-			mockRepo.EXPECT().AddSnippets(gomock.Any()).Return(nil)
+			mockRepo.EXPECT().AddSnippets(gomock.Any(), gomock.Any()).Return(nil)
 			mockPublisher.EXPECT().PublishFlushing(0)
 		})
 
@@ -93,7 +93,7 @@ var _ = Describe("Flush", func() {
 		BeforeEach(func() {
 			input = nil
 
-			mockRepo.EXPECT().AddSnippets(gomock.Any()).Return(nil)
+			mockRepo.EXPECT().AddSnippets(gomock.Any(), gomock.Any()).Return(nil)
 			mockPublisher.EXPECT().PublishFlushing(0)
 		})
 
