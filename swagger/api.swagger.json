@@ -91,6 +91,23 @@
         ]
       }
     },
+    "/snippets/multi_create/v1": {
+      "post": {
+        "summary": "Создаёт новый фрагмент решения",
+        "operationId": "MultiCreateSnippetV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMultiCreateSnippetV1Response"
+            }
+          }
+        },
+        "tags": [
+          "OcpSnippetApi"
+        ]
+      }
+    },
     "/snippets/remove/v1/{snippet_id}": {
       "delete": {
         "summary": "Удаляет фрагмент решения",
@@ -116,9 +133,46 @@
           "OcpSnippetApi"
         ]
       }
+    },
+    "/snippets/update/v1": {
+      "post": {
+        "summary": "Создаёт новый фрагмент решения",
+        "operationId": "UpdateSnippetV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUpdateSnippetV1Response"
+            }
+          }
+        },
+        "tags": [
+          "OcpSnippetApi"
+        ]
+      }
     }
   },
   "definitions": {
+    "apiCreateSnippetV1Request": {
+      "type": "object",
+      "properties": {
+        "solution_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "text": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        }
+      },
+      "title": "Создание:"
+    },
     "apiCreateSnippetV1Response": {
       "type": "object",
       "properties": {
@@ -143,6 +197,18 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/apiSnippet"
+          }
+        }
+      }
+    },
+    "apiMultiCreateSnippetV1Response": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uint64"
           }
         }
       }
@@ -176,6 +242,15 @@
         },
         "language": {
           "type": "string"
+        }
+      }
+    },
+    "apiUpdateSnippetV1Response": {
+      "type": "object",
+      "properties": {
+        "updated": {
+          "type": "boolean",
+          "format": "boolean"
         }
       }
     }

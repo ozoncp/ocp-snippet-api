@@ -14,6 +14,7 @@ import (
 
 	"github.com/ozoncp/ocp-snippet-api/internal/api"
 	"github.com/ozoncp/ocp-snippet-api/internal/models"
+	"github.com/ozoncp/ocp-snippet-api/internal/producer"
 	"github.com/ozoncp/ocp-snippet-api/internal/repo"
 	desc "github.com/ozoncp/ocp-snippet-api/pkg/ocp-snippet-api"
 )
@@ -38,7 +39,12 @@ var _ = Describe("Api", func() {
 		ctx = context.Background()
 		repoDB = repo.NewRepoDB(db)
 
-		apiServer = api.NewOcpSnippetApi(repoDB)
+		prod, err := producer.NewProducer("test-ocp-cnippet-api")
+		if err != nil {
+			Fail("Cannor create producer")
+		}
+
+		apiServer = api.NewOcpSnippetApi(repoDB, prod)
 	})
 
 	AfterEach(func() {

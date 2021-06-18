@@ -10,11 +10,13 @@ import (
 
 	"context"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
-	// "google.golang.org/grpc/reflection"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	api "github.com/ozoncp/ocp-snippet-api/internal/api"
+	"github.com/ozoncp/ocp-snippet-api/internal/metrics"
+	"github.com/ozoncp/ocp-snippet-api/internal/producer"
 	"github.com/ozoncp/ocp-snippet-api/internal/repo"
 	desc "github.com/ozoncp/ocp-snippet-api/pkg/ocp-snippet-api"
 )
@@ -54,6 +56,17 @@ func createDB() *sql.DB {
 	return db
 }
 
+func runMetrics() {
+
+	metrics.RegisterMetrics()
+	http.Handle("/metrics", promhttp.Handler())
+
+	err := http.ListenAndServe(":9100", nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func run() error {
 	listener, err := net.Listen("tcp", grpcEndpoint)
 	if err != nil {
@@ -62,13 +75,18 @@ func run() error {
 
 	ctx := context.Background()
 	s := grpc.NewServer()
-	// reflection.Register(s)
+
+	prod, err := producer.NewProducer("ocp-snippet-api")
+	if err != nil {
+		log.Fatalf("Cannot create prod: %v", err)
+	}
+	defer prod.Close()
 
 	db := createDB()
 	repo := repo.NewRepoDB(db)
 	defer db.Close()
 
-	desc.RegisterOcpSnippetApiServer(s, api.NewOcpSnippetApi(repo))
+	desc.RegisterOcpSnippetApiServer(s, api.NewOcpSnippetApi(repo, prod))
 
 	go func() {
 		fmt.Printf("GRPC server listening on %s\n", grpcEndpoint)
@@ -92,6 +110,8 @@ func run() error {
 
 func main() {
 	fmt.Println("ocp-snippet-api by Oleg Usov")
+
+	go runMetrics()
 
 	if err := run(); err != nil {
 		log.Fatal(err)

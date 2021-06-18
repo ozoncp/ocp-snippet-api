@@ -16,6 +16,13 @@ service OcpSnippetApi {
 		};
 	}
 
+	//  Создаёт несколько новых фрагментов решения
+	rpc MultiCreateSnippetV1(MultiCreateSnippetV1Request) returns (MultiCreateSnippetV1Response) {
+		option (google.api.http) = {
+			post: "/snippets/multi_create/v1"
+		};
+	}
+
 	// Возвращает фрагмент решения
 	rpc DescribeSnippetV1(DescribeSnippetV1Request) returns (DescribeSnippetV1Response) {
 		option (google.api.http) = {
@@ -28,6 +35,13 @@ service OcpSnippetApi {
 		option (google.api.http) = {
 			get: "/snippets/list/v1"
         };
+	}
+
+	//  Обнавляет фрагмент решения по его Id
+	rpc UpdateSnippetV1(UpdateSnippetV1Request) returns (UpdateSnippetV1Response) {
+		option (google.api.http) = {
+			post: "/snippets/update/v1"
+		};
 	}
 	
 	// Удаляет фрагмент решения
@@ -48,6 +62,12 @@ message CreateSnippetV1Request {
 message CreateSnippetV1Response {
 	uint64 id = 1;
 }
+message MultiCreateSnippetV1Request {
+	repeated CreateSnippetV1Request snippets = 1;
+}
+message MultiCreateSnippetV1Response {
+	repeated uint64 ids = 1;
+}
 
 // Чтение:
 message DescribeSnippetV1Request {
@@ -64,6 +84,18 @@ message ListSnippetsV1Request {
 }
 message ListSnippetsV1Response {
     repeated Snippet snippets = 1;
+}
+ 
+// Получение списка:
+message UpdateSnippetV1Request {
+    uint64 id          = 1;
+    uint64 solution_id = 2;
+	uint64 user_id     = 3;
+	string text        = 4;
+	string language    = 5;
+}
+message UpdateSnippetV1Response {
+    bool updated = 1;
 }
 
 // Удаление:

@@ -6,6 +6,7 @@ import (
 
 	"errors"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/ozoncp/ocp-snippet-api/internal/models"
 	"github.com/ozoncp/ocp-snippet-api/internal/utils"
 	"github.com/rs/zerolog"
@@ -22,6 +23,7 @@ type Repo interface {
 	RemoveSnippet(ctx context.Context, snippetId uint64) (bool, error)
 	DescribeSnippet(ctx context.Context, snippetId uint64) (*models.Snippet, error)
 	ListSnippets(ctx context.Context, limit, offset uint64) ([]models.Snippet, error)
+	UpdateSnippet(ctx context.Context, snippet models.Snippet) (bool, error)
 }
 
 const (
@@ -51,9 +53,40 @@ func pingContext(ctx context.Context, repo repoDB) error {
 	return err
 }
 
+func (repo repoDB) addSnippetsBatch(ctx context.Context, batch []models.Snippet) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "Adding snippets batch")
+	defer span.Finish()
+
+	query := sq.Insert(table).Columns("solution_id", "user_id", "text", "language").Suffix("RETURNING \"id\"").RunWith(repo.db).PlaceholderFormat(sq.Dollar)
+	for _, snippet := range batch {
+		query = query.Values(snippet.SolutionId, snippet.UserId, snippet.Text, snippet.Language)
+	}
+
+	rows, err := query.QueryContext(ctx)
+
+	if err != nil {
+		log.Warn().Msgf("Failed to exec query: %v\n", err)
+		return err
+	}
+
+	for i := 0; i < len(batch) && rows.Next(); i++ {
+		var id uint64
+		if err := rows.Scan(&id); err != nil {
+			log.Warn().Msgf("Failed to scan insert query result: %v\n", err)
+			return err
+		}
+		batch[i].Id = id
+	}
+
+	return nil
+}
+
 // AddSnippets - добавляет переданные snippet'ы в БД.
 // После вставки заполняет поле Id каждого snippet'а.
 func (repo repoDB) AddSnippets(ctx context.Context, snippets []models.Snippet) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "Adding snippets")
+	defer span.Finish()
+
 	if len(snippets) == 0 {
 		return errors.New("AddSnippets: Nothing to add")
 	}
@@ -70,25 +103,8 @@ func (repo repoDB) AddSnippets(ctx context.Context, snippets []models.Snippet) e
 	}
 
 	for _, batch := range batches {
-		query := sq.Insert(table).Columns("solution_id", "user_id", "text", "language").Suffix("RETURNING \"id\"").RunWith(repo.db).PlaceholderFormat(sq.Dollar)
-		for _, snippet := range batch {
-			query = query.Values(snippet.SolutionId, snippet.UserId, snippet.Text, snippet.Language)
-		}
-
-		rows, err := query.QueryContext(ctx)
-
-		if err != nil {
-			log.Warn().Msgf("Failed to exec query: %v\n", err)
+		if err = repo.addSnippetsBatch(ctx, batch); err != nil {
 			return err
-		}
-
-		for i := 0; i < len(batch) && rows.Next(); i++ {
-			var id uint64
-			if err := rows.Scan(&id); err != nil {
-				log.Warn().Msgf("Failed to scan insert query result: %v\n", err)
-				return err
-			}
-			batch[i].Id = id
 		}
 	}
 
@@ -96,6 +112,9 @@ func (repo repoDB) AddSnippets(ctx context.Context, snippets []models.Snippet) e
 }
 
 func (repo repoDB) RemoveSnippet(ctx context.Context, snippetId uint64) (bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "Removing snippet")
+	defer span.Finish()
+
 	if err := pingContext(ctx, repo); err != nil {
 		return false, err
 	}
@@ -120,6 +139,9 @@ func scanSnippetRow(snippet *models.Snippet, rows *sql.Rows) error {
 }
 
 func (repo repoDB) DescribeSnippet(ctx context.Context, snippetId uint64) (*models.Snippet, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "Describing snippets")
+	defer span.Finish()
+
 	if err := pingContext(ctx, repo); err != nil {
 		return nil, err
 	}
@@ -153,6 +175,9 @@ func (repo repoDB) DescribeSnippet(ctx context.Context, snippetId uint64) (*mode
 
 // Если limit == 0 считается, что лимита в запросе нет.
 func (repo repoDB) ListSnippets(ctx context.Context, limit, offset uint64) ([]models.Snippet, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "Listing snippets")
+	defer span.Finish()
+
 	if err := pingContext(ctx, repo); err != nil {
 		return nil, err
 	}
@@ -183,4 +208,34 @@ func (repo repoDB) ListSnippets(ctx context.Context, limit, offset uint64) ([]mo
 	}
 
 	return res, nil
+}
+
+func (repo repoDB) UpdateSnippet(ctx context.Context, snippet models.Snippet) (bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "Updating snippets")
+	defer span.Finish()
+
+	query := sq.Update(table).
+		Set("solution_id", snippet.SolutionId).
+		Set("user_id", snippet.UserId).
+		Set("text", snippet.Text).
+		Set("language", snippet.Language).
+		Where(sq.Eq{"id": snippet.Id}).
+		RunWith(repo.db).
+		PlaceholderFormat(sq.Dollar)
+
+	res, err := query.ExecContext(ctx)
+
+	if err != nil {
+		log.Warn().Msgf("Failed to exec query: %v\n", err)
+		return false, err
+	}
+
+	rowsUpdated, _ := res.RowsAffected()
+	log.Info().Msgf("%d rows updated!\n", rowsUpdated)
+
+	if rowsUpdated > 1 {
+		log.Warn().Msgf("key duplicate in table '%s': %d!\n", table, snippet.Id)
+	}
+
+	return rowsUpdated > 0, nil
 }

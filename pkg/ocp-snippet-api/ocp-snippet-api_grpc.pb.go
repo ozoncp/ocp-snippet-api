@@ -20,10 +20,14 @@ const _ = grpc.SupportPackageIsVersion7
 type OcpSnippetApiClient interface {
 	//  Создаёт новый фрагмент решения
 	CreateSnippetV1(ctx context.Context, in *CreateSnippetV1Request, opts ...grpc.CallOption) (*CreateSnippetV1Response, error)
+	//  Создаёт новый фрагмент решения
+	MultiCreateSnippetV1(ctx context.Context, in *MultiCreateSnippetV1Request, opts ...grpc.CallOption) (*MultiCreateSnippetV1Response, error)
 	// Возвращает фрагмент решения
 	DescribeSnippetV1(ctx context.Context, in *DescribeSnippetV1Request, opts ...grpc.CallOption) (*DescribeSnippetV1Response, error)
 	// Возвращает список фрагментов решения
 	ListSnippetsV1(ctx context.Context, in *ListSnippetsV1Request, opts ...grpc.CallOption) (*ListSnippetsV1Response, error)
+	//  Создаёт новый фрагмент решения
+	UpdateSnippetV1(ctx context.Context, in *UpdateSnippetV1Request, opts ...grpc.CallOption) (*UpdateSnippetV1Response, error)
 	// Удаляет фрагмент решения
 	RemoveSnippetV1(ctx context.Context, in *RemoveSnippetV1Request, opts ...grpc.CallOption) (*RemoveSnippetV1Response, error)
 }
@@ -39,6 +43,15 @@ func NewOcpSnippetApiClient(cc grpc.ClientConnInterface) OcpSnippetApiClient {
 func (c *ocpSnippetApiClient) CreateSnippetV1(ctx context.Context, in *CreateSnippetV1Request, opts ...grpc.CallOption) (*CreateSnippetV1Response, error) {
 	out := new(CreateSnippetV1Response)
 	err := c.cc.Invoke(ctx, "/ocp.snippet.api.OcpSnippetApi/CreateSnippetV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ocpSnippetApiClient) MultiCreateSnippetV1(ctx context.Context, in *MultiCreateSnippetV1Request, opts ...grpc.CallOption) (*MultiCreateSnippetV1Response, error) {
+	out := new(MultiCreateSnippetV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.snippet.api.OcpSnippetApi/MultiCreateSnippetV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,6 +76,15 @@ func (c *ocpSnippetApiClient) ListSnippetsV1(ctx context.Context, in *ListSnippe
 	return out, nil
 }
 
+func (c *ocpSnippetApiClient) UpdateSnippetV1(ctx context.Context, in *UpdateSnippetV1Request, opts ...grpc.CallOption) (*UpdateSnippetV1Response, error) {
+	out := new(UpdateSnippetV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.snippet.api.OcpSnippetApi/UpdateSnippetV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *ocpSnippetApiClient) RemoveSnippetV1(ctx context.Context, in *RemoveSnippetV1Request, opts ...grpc.CallOption) (*RemoveSnippetV1Response, error) {
 	out := new(RemoveSnippetV1Response)
 	err := c.cc.Invoke(ctx, "/ocp.snippet.api.OcpSnippetApi/RemoveSnippetV1", in, out, opts...)
@@ -78,10 +100,14 @@ func (c *ocpSnippetApiClient) RemoveSnippetV1(ctx context.Context, in *RemoveSni
 type OcpSnippetApiServer interface {
 	//  Создаёт новый фрагмент решения
 	CreateSnippetV1(context.Context, *CreateSnippetV1Request) (*CreateSnippetV1Response, error)
+	//  Создаёт новый фрагмент решения
+	MultiCreateSnippetV1(context.Context, *MultiCreateSnippetV1Request) (*MultiCreateSnippetV1Response, error)
 	// Возвращает фрагмент решения
 	DescribeSnippetV1(context.Context, *DescribeSnippetV1Request) (*DescribeSnippetV1Response, error)
 	// Возвращает список фрагментов решения
 	ListSnippetsV1(context.Context, *ListSnippetsV1Request) (*ListSnippetsV1Response, error)
+	//  Создаёт новый фрагмент решения
+	UpdateSnippetV1(context.Context, *UpdateSnippetV1Request) (*UpdateSnippetV1Response, error)
 	// Удаляет фрагмент решения
 	RemoveSnippetV1(context.Context, *RemoveSnippetV1Request) (*RemoveSnippetV1Response, error)
 	mustEmbedUnimplementedOcpSnippetApiServer()
@@ -94,11 +120,17 @@ type UnimplementedOcpSnippetApiServer struct {
 func (UnimplementedOcpSnippetApiServer) CreateSnippetV1(context.Context, *CreateSnippetV1Request) (*CreateSnippetV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSnippetV1 not implemented")
 }
+func (UnimplementedOcpSnippetApiServer) MultiCreateSnippetV1(context.Context, *MultiCreateSnippetV1Request) (*MultiCreateSnippetV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiCreateSnippetV1 not implemented")
+}
 func (UnimplementedOcpSnippetApiServer) DescribeSnippetV1(context.Context, *DescribeSnippetV1Request) (*DescribeSnippetV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DescribeSnippetV1 not implemented")
 }
 func (UnimplementedOcpSnippetApiServer) ListSnippetsV1(context.Context, *ListSnippetsV1Request) (*ListSnippetsV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListSnippetsV1 not implemented")
+}
+func (UnimplementedOcpSnippetApiServer) UpdateSnippetV1(context.Context, *UpdateSnippetV1Request) (*UpdateSnippetV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSnippetV1 not implemented")
 }
 func (UnimplementedOcpSnippetApiServer) RemoveSnippetV1(context.Context, *RemoveSnippetV1Request) (*RemoveSnippetV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveSnippetV1 not implemented")
@@ -130,6 +162,24 @@ func _OcpSnippetApi_CreateSnippetV1_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpSnippetApiServer).CreateSnippetV1(ctx, req.(*CreateSnippetV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OcpSnippetApi_MultiCreateSnippetV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiCreateSnippetV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpSnippetApiServer).MultiCreateSnippetV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.snippet.api.OcpSnippetApi/MultiCreateSnippetV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpSnippetApiServer).MultiCreateSnippetV1(ctx, req.(*MultiCreateSnippetV1Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -170,6 +220,24 @@ func _OcpSnippetApi_ListSnippetsV1_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OcpSnippetApi_UpdateSnippetV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSnippetV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpSnippetApiServer).UpdateSnippetV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.snippet.api.OcpSnippetApi/UpdateSnippetV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpSnippetApiServer).UpdateSnippetV1(ctx, req.(*UpdateSnippetV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OcpSnippetApi_RemoveSnippetV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveSnippetV1Request)
 	if err := dec(in); err != nil {
@@ -200,12 +268,20 @@ var OcpSnippetApi_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OcpSnippetApi_CreateSnippetV1_Handler,
 		},
 		{
+			MethodName: "MultiCreateSnippetV1",
+			Handler:    _OcpSnippetApi_MultiCreateSnippetV1_Handler,
+		},
+		{
 			MethodName: "DescribeSnippetV1",
 			Handler:    _OcpSnippetApi_DescribeSnippetV1_Handler,
 		},
 		{
 			MethodName: "ListSnippetsV1",
 			Handler:    _OcpSnippetApi_ListSnippetsV1_Handler,
+		},
+		{
+			MethodName: "UpdateSnippetV1",
+			Handler:    _OcpSnippetApi_UpdateSnippetV1_Handler,
 		},
 		{
 			MethodName: "RemoveSnippetV1",
