@@ -20,13 +20,13 @@ const _ = grpc.SupportPackageIsVersion7
 type OcpSnippetApiClient interface {
 	//  Создаёт новый фрагмент решения
 	CreateSnippetV1(ctx context.Context, in *CreateSnippetV1Request, opts ...grpc.CallOption) (*CreateSnippetV1Response, error)
-	//  Создаёт новый фрагмент решения
+	//  Создаёт несколько новых фрагментов решения
 	MultiCreateSnippetV1(ctx context.Context, in *MultiCreateSnippetV1Request, opts ...grpc.CallOption) (*MultiCreateSnippetV1Response, error)
 	// Возвращает фрагмент решения
 	DescribeSnippetV1(ctx context.Context, in *DescribeSnippetV1Request, opts ...grpc.CallOption) (*DescribeSnippetV1Response, error)
 	// Возвращает список фрагментов решения
 	ListSnippetsV1(ctx context.Context, in *ListSnippetsV1Request, opts ...grpc.CallOption) (*ListSnippetsV1Response, error)
-	//  Создаёт новый фрагмент решения
+	//  Обнавляет фрагмент решения по его Id
 	UpdateSnippetV1(ctx context.Context, in *UpdateSnippetV1Request, opts ...grpc.CallOption) (*UpdateSnippetV1Response, error)
 	// Удаляет фрагмент решения
 	RemoveSnippetV1(ctx context.Context, in *RemoveSnippetV1Request, opts ...grpc.CallOption) (*RemoveSnippetV1Response, error)
@@ -100,13 +100,13 @@ func (c *ocpSnippetApiClient) RemoveSnippetV1(ctx context.Context, in *RemoveSni
 type OcpSnippetApiServer interface {
 	//  Создаёт новый фрагмент решения
 	CreateSnippetV1(context.Context, *CreateSnippetV1Request) (*CreateSnippetV1Response, error)
-	//  Создаёт новый фрагмент решения
+	//  Создаёт несколько новых фрагментов решения
 	MultiCreateSnippetV1(context.Context, *MultiCreateSnippetV1Request) (*MultiCreateSnippetV1Response, error)
 	// Возвращает фрагмент решения
 	DescribeSnippetV1(context.Context, *DescribeSnippetV1Request) (*DescribeSnippetV1Response, error)
 	// Возвращает список фрагментов решения
 	ListSnippetsV1(context.Context, *ListSnippetsV1Request) (*ListSnippetsV1Response, error)
-	//  Создаёт новый фрагмент решения
+	//  Обнавляет фрагмент решения по его Id
 	UpdateSnippetV1(context.Context, *UpdateSnippetV1Request) (*UpdateSnippetV1Response, error)
 	// Удаляет фрагмент решения
 	RemoveSnippetV1(context.Context, *RemoveSnippetV1Request) (*RemoveSnippetV1Response, error)

@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	"log"
 	"net"
@@ -31,19 +32,25 @@ var (
 	httpEndpoint = fmt.Sprintf("localhost:%d", httpPort)
 )
 
+func getEnv(key string, defaultValue string) string {
+	res := os.Getenv(key)
+	if len(res) == 0 {
+		res = defaultValue
+	}
+	return res
+}
+
 func createDB() *sql.DB {
-	const (
-		dsnPreffix string = "postgres://"
-		host       string = "localhost"
-		port       int    = 5432
-		name       string = "postgres"
-		user       string = "postgres"
-		pswd       string = "leshiy"
-	)
+	dsnPreffix := getEnv("OCP_SNIPPET_API_DB_DSN_PREFFIX", "postgres://")
+	host := getEnv("OCP_SNIPPET_API_DB_HOST", "localhost")
+	port := getEnv("OCP_SNIPPET_API_DB_PORT", "5432")
+	name := getEnv("OCP_SNIPPET_API_DB_NAME", "postgres")
+	user := getEnv("OCP_SNIPPET_API_DB_USER", "postgres")
+	pswd := getEnv("OCP_SNIPPET_API_DB_PSWD", "")
 
 	dsn := fmt.Sprintf("%s%s:%s@%s", dsnPreffix, user, pswd, host)
-	if port >= 0 {
-		dsn = fmt.Sprintf("%s:%d", dsn, port)
+	if len(port) > 0 {
+		dsn = fmt.Sprintf("%s:%s", dsn, port)
 	}
 	dsn = fmt.Sprintf("%s/%s", dsn, name)
 
@@ -117,4 +124,5 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Println("ocp-snippet-api stoped!")
 }

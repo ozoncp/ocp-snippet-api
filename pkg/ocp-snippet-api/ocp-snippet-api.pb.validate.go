@@ -43,8 +43,6 @@ func (m *CreateSnippetV1Request) Validate() error {
 
 	// no validation rules for SolutionId
 
-	// no validation rules for UserId
-
 	// no validation rules for Text
 
 	// no validation rules for Language
@@ -639,8 +637,6 @@ func (m *UpdateSnippetV1Request) Validate() error {
 
 	// no validation rules for SolutionId
 
-	// no validation rules for UserId
-
 	// no validation rules for Text
 
 	// no validation rules for Language
@@ -921,8 +917,6 @@ func (m *Snippet) Validate() error {
 	// no validation rules for Id
 
 	// no validation rules for SolutionId
-
-	// no validation rules for UserId
 
 	// no validation rules for Text
 

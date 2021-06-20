@@ -93,3 +93,18 @@ func (mr *MockRepoMockRecorder) RemoveSnippet(arg0, arg1 interface{}) *gomock.Ca
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveSnippet", reflect.TypeOf((*MockRepo)(nil).RemoveSnippet), arg0, arg1)
 }
+
+// UpdateSnippet mocks base method.
+func (m *MockRepo) UpdateSnippet(arg0 context.Context, arg1 models.Snippet) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSnippet", arg0, arg1)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateSnippet indicates an expected call of UpdateSnippet.
+func (mr *MockRepoMockRecorder) UpdateSnippet(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSnippet", reflect.TypeOf((*MockRepo)(nil).UpdateSnippet), arg0, arg1)
+}

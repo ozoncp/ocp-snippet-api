@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
 	"github.com/ozoncp/ocp-snippet-api/internal/metrics"
 	"github.com/ozoncp/ocp-snippet-api/internal/models"
@@ -10,18 +10,22 @@ import (
 	"github.com/ozoncp/ocp-snippet-api/internal/repo"
 	desc "github.com/ozoncp/ocp-snippet-api/pkg/ocp-snippet-api"
 
-	// TO BE FIXED: возвращать коды ошибок!
-	// "google.golang.org/grpc/codes"
-	// "google.golang.org/grpc/status"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
-// const (
-// 	errCannotCreateSnippet = "cannot create snippet"
-// 	errSnippetNotFound     = "snippet not found"
-// )
+const (
+	errNilRequest            = "nil request received"
+	errConverter             = "converter error"
+	errCannotDescribeSnippet = "cannot describe snippet"
+	errEmptySnippetsAfterAdd = "empty snippets received after AddSnippets"
+	errCannotListSnippet     = "cannot list snippets"
+	errCannotRemoveSnippet   = "cannot remove snippet"
+	errCannotUpdateSnippet   = "cannot update snippet"
+)
 
 type api struct {
 	desc.UnimplementedOcpSnippetApiServer
@@ -41,7 +45,17 @@ func snippetConvert(snippet *models.Snippet) *desc.Snippet {
 	return &desc.Snippet{
 		Id:         snippet.Id,
 		SolutionId: snippet.SolutionId,
-		UserId:     snippet.UserId,
+		Text:       snippet.Text,
+		Language:   snippet.Language,
+	}
+}
+func createSnippetRequestConverter(snippet *desc.CreateSnippetV1Request) *models.Snippet {
+	if snippet == nil {
+		return nil
+	}
+
+	return &models.Snippet{
+		SolutionId: snippet.SolutionId,
 		Text:       snippet.Text,
 		Language:   snippet.Language,
 	}
@@ -50,21 +64,26 @@ func snippetConvert(snippet *models.Snippet) *desc.Snippet {
 func (a *api) CreateSnippetV1(ctx context.Context, req *desc.CreateSnippetV1Request) (*desc.CreateSnippetV1Response, error) {
 	log.Print("CreateSnippetV1: ", req)
 
-	snippets := []models.Snippet{{
-		SolutionId: req.SolutionId,
-		UserId:     req.UserId,
-		Text:       req.Text,
-		Language:   req.Language,
-	}}
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, errNilRequest) //errors.New("empty request received")
+	}
+
+	snippet := createSnippetRequestConverter(req)
+	if snippet == nil {
+		return nil, status.Error(codes.FailedPrecondition, errConverter) //errors.New("cannot convert request to models.Snippet")
+	}
+
+	snippets := []models.Snippet{*snippet}
 
 	if err := a.repo.AddSnippets(ctx, snippets); err != nil {
-		return nil, err
+		return nil, status.Error(codes.DataLoss, err.Error()) //err
 	}
 
 	if len(snippets) < 1 {
-		return nil, errors.New("empty snippets received after AddSnippets")
+		return nil, status.Error(codes.DataLoss, errEmptySnippetsAfterAdd) //errors.New("empty snippets received after AddSnippets")
 	}
 
+	fmt.Println(snippet)
 	res := &desc.CreateSnippetV1Response{
 		Id: snippets[0].Id,
 	}
@@ -77,19 +96,24 @@ func (a *api) CreateSnippetV1(ctx context.Context, req *desc.CreateSnippetV1Requ
 	})
 	metrics.IncrementSuccessfulCreate(len(snippets))
 
-	//err := status.Error(codes.NotFound, errCannotCreateSnippet)
 	return res, nil
 }
 
 func (a *api) MultiCreateSnippetV1(ctx context.Context, req *desc.MultiCreateSnippetV1Request) (*desc.MultiCreateSnippetV1Response, error) {
 	log.Print("CreateSnippetV1: ", req)
 
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, errNilRequest) //errors.New("empty request received")
+	}
+
 	snippets := make([]models.Snippet, len(req.Snippets))
-	for idx, snippet := range req.Snippets { // Корявенько выглядит...
-		snippets[idx].SolutionId = snippet.SolutionId
-		snippets[idx].UserId = snippet.UserId
-		snippets[idx].Text = snippet.Text
-		snippets[idx].Language = snippet.Language
+	for idx, reqSnippet := range req.Snippets {
+		snippet := createSnippetRequestConverter(reqSnippet)
+		if snippet == nil {
+			log.Warn().Msgf("cannot convert request to models.Snippet (wiil be skipped): %v", reqSnippet)
+		} else {
+			snippets[idx] = *snippet
+		}
 	}
 
 	if err := a.repo.AddSnippets(ctx, snippets); err != nil {
@@ -97,7 +121,7 @@ func (a *api) MultiCreateSnippetV1(ctx context.Context, req *desc.MultiCreateSni
 	}
 
 	if len(snippets) < 1 {
-		return nil, errors.New("empty snippets received after AddSnippets")
+		return nil, status.Error(codes.DataLoss, errEmptySnippetsAfterAdd) //errors.New("empty snippets received after AddSnippets")
 	}
 
 	metrics.IncrementSuccessfulCreate(len(snippets))
@@ -114,7 +138,6 @@ func (a *api) MultiCreateSnippetV1(ctx context.Context, req *desc.MultiCreateSni
 		},
 	})
 
-	//err := status.Error(codes.NotFound, errCannotCreateSnippet)
 	return &desc.MultiCreateSnippetV1Response{
 		Ids: res,
 	}, nil
@@ -126,7 +149,7 @@ func (a *api) DescribeSnippetV1(ctx context.Context, req *desc.DescribeSnippetV1
 	res, err := a.repo.DescribeSnippet(ctx, req.SnippetId)
 
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("%s: %s", errCannotDescribeSnippet, err.Error())) //err
 	}
 
 	metrics.IncrementSuccessfulRead(1)
@@ -134,9 +157,6 @@ func (a *api) DescribeSnippetV1(ctx context.Context, req *desc.DescribeSnippetV1
 	return &desc.DescribeSnippetV1Response{
 		Snippet: snippetConvert(res),
 	}, nil
-
-	// err := status.Error(codes.NotFound, errSnippetNotFound)
-	// return nil, err
 }
 
 func (a *api) ListSnippetsV1(ctx context.Context, req *desc.ListSnippetsV1Request) (*desc.ListSnippetsV1Response, error) {
@@ -145,7 +165,7 @@ func (a *api) ListSnippetsV1(ctx context.Context, req *desc.ListSnippetsV1Reques
 	list, err := a.repo.ListSnippets(ctx, req.Limit, req.Offset)
 
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("%s: %s", errCannotListSnippet, err.Error())) //err
 	}
 
 	res := make([]*desc.Snippet, len(list))
@@ -158,9 +178,6 @@ func (a *api) ListSnippetsV1(ctx context.Context, req *desc.ListSnippetsV1Reques
 	return &desc.ListSnippetsV1Response{
 		Snippets: res,
 	}, nil
-
-	// err := status.Error(codes.NotFound, errSnippetNotFound)
-	// return nil, err
 }
 
 func (a *api) RemoveSnippetV1(ctx context.Context, req *desc.RemoveSnippetV1Request) (*desc.RemoveSnippetV1Response, error) {
@@ -182,25 +199,25 @@ func (a *api) RemoveSnippetV1(ctx context.Context, req *desc.RemoveSnippetV1Requ
 	}
 	metrics.IncrementSuccessfulDelete(deletedCnt)
 
+	if err != nil {
+		err = status.Error(codes.Aborted, fmt.Sprintf("%s: %s", errCannotRemoveSnippet, err.Error()))
+	}
+
 	return &desc.RemoveSnippetV1Response{
 		Removed: res,
 	}, err
-
-	// err := status.Error(codes.NotFound, errSnippetNotFound)
-	// return nil, err
 }
 
 func (a *api) UpdateSnippetV1(ctx context.Context, req *desc.UpdateSnippetV1Request) (*desc.UpdateSnippetV1Response, error) {
 	log.Print("UpdateSnippetV1: ", req)
 
 	if req == nil {
-		return nil, errors.New("empty snippet received fo update")
+		return nil, status.Error(codes.InvalidArgument, errNilRequest) //errors.New("empty snippet received fo update")
 	}
 
 	res, err := a.repo.UpdateSnippet(ctx, models.Snippet{
 		Id:         req.Id,
 		SolutionId: req.SolutionId,
-		UserId:     req.UserId,
 		Text:       req.Text,
 		Language:   req.Language,
 	})
@@ -210,6 +227,10 @@ func (a *api) UpdateSnippetV1(ctx context.Context, req *desc.UpdateSnippetV1Requ
 		updatedCnt = 1
 	}
 	metrics.IncrementSuccessfulUpdate(updatedCnt)
+
+	if err != nil {
+		err = status.Error(codes.Aborted, fmt.Sprintf("%s: %s", errCannotUpdateSnippet, err.Error()))
+	}
 
 	return &desc.UpdateSnippetV1Response{
 		Updated: res,

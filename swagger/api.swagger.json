@@ -27,6 +27,16 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiCreateSnippetV1Request"
+            }
+          }
+        ],
         "tags": [
           "OcpSnippetApi"
         ]
@@ -93,7 +103,7 @@
     },
     "/snippets/multi_create/v1": {
       "post": {
-        "summary": "Создаёт новый фрагмент решения",
+        "summary": "Создаёт несколько новых фрагментов решения",
         "operationId": "MultiCreateSnippetV1",
         "responses": {
           "200": {
@@ -103,6 +113,16 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiMultiCreateSnippetV1Request"
+            }
+          }
+        ],
         "tags": [
           "OcpSnippetApi"
         ]
@@ -136,7 +156,7 @@
     },
     "/snippets/update/v1": {
       "post": {
-        "summary": "Создаёт новый фрагмент решения",
+        "summary": "Обнавляет фрагмент решения по его Id",
         "operationId": "UpdateSnippetV1",
         "responses": {
           "200": {
@@ -157,10 +177,6 @@
       "type": "object",
       "properties": {
         "solution_id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "user_id": {
           "type": "string",
           "format": "uint64"
         },
@@ -201,6 +217,17 @@
         }
       }
     },
+    "apiMultiCreateSnippetV1Request": {
+      "type": "object",
+      "properties": {
+        "snippets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiCreateSnippetV1Request"
+          }
+        }
+      }
+    },
     "apiMultiCreateSnippetV1Response": {
       "type": "object",
       "properties": {
@@ -230,10 +257,6 @@
           "format": "uint64"
         },
         "solution_id": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "user_id": {
           "type": "string",
           "format": "uint64"
         },
