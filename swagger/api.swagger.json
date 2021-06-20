@@ -1,0 +1,183 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/ocp-snippet-api/ocp-snippet-api.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/snippets/create/v1": {
+      "post": {
+        "summary": "Создаёт новый фрагмент решения",
+        "operationId": "CreateSnippetV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCreateSnippetV1Response"
+            }
+          }
+        },
+        "tags": [
+          "OcpSnippetApi"
+        ]
+      }
+    },
+    "/snippets/describe/v1/{snippet_id}": {
+      "get": {
+        "summary": "Возвращает фрагмент решения",
+        "operationId": "DescribeSnippetV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiDescribeSnippetV1Response"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "snippet_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpSnippetApi"
+        ]
+      }
+    },
+    "/snippets/list/v1": {
+      "get": {
+        "summary": "Возвращает список фрагментов решения",
+        "operationId": "ListSnippetsV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiListSnippetsV1Response"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpSnippetApi"
+        ]
+      }
+    },
+    "/snippets/remove/v1/{snippet_id}": {
+      "delete": {
+        "summary": "Удаляет фрагмент решения",
+        "operationId": "RemoveSnippetV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiRemoveSnippetV1Response"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "snippet_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpSnippetApi"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiCreateSnippetV1Response": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "apiDescribeSnippetV1Response": {
+      "type": "object",
+      "properties": {
+        "snippet": {
+          "$ref": "#/definitions/apiSnippet"
+        }
+      }
+    },
+    "apiListSnippetsV1Response": {
+      "type": "object",
+      "properties": {
+        "snippets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiSnippet"
+          }
+        }
+      }
+    },
+    "apiRemoveSnippetV1Response": {
+      "type": "object",
+      "properties": {
+        "removed": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "apiSnippet": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "solution_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "text": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

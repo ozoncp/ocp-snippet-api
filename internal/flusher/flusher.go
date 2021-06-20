@@ -1,6 +1,8 @@
 package flusher
 
 import (
+	"context"
+
 	"github.com/ozoncp/ocp-snippet-api/internal/metrics"
 	"github.com/ozoncp/ocp-snippet-api/internal/models"
 	"github.com/ozoncp/ocp-snippet-api/internal/repo"
@@ -28,7 +30,7 @@ func (f flusher) Flush(snippets []models.Snippet) ([]models.Snippet, error) {
 	res := make([]models.Snippet, 0, len(snippets))
 
 	for _, batch := range batches {
-		if err = f.repo.AddSnippets(batch); err != nil {
+		if err = f.repo.AddSnippets(context.Background(), batch); err != nil {
 			res = append(res, batch...)
 		}
 	}

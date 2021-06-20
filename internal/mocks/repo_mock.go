@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -35,59 +36,60 @@ func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 }
 
 // AddSnippets mocks base method.
-func (m *MockRepo) AddSnippets(arg0 []models.Snippet) error {
+func (m *MockRepo) AddSnippets(arg0 context.Context, arg1 []models.Snippet) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddSnippets", arg0)
+	ret := m.ctrl.Call(m, "AddSnippets", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddSnippets indicates an expected call of AddSnippets.
-func (mr *MockRepoMockRecorder) AddSnippets(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) AddSnippets(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSnippets", reflect.TypeOf((*MockRepo)(nil).AddSnippets), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSnippets", reflect.TypeOf((*MockRepo)(nil).AddSnippets), arg0, arg1)
 }
 
 // DescribeSnippet mocks base method.
-func (m *MockRepo) DescribeSnippet(arg0 uint64) (*models.Snippet, error) {
+func (m *MockRepo) DescribeSnippet(arg0 context.Context, arg1 uint64) (*models.Snippet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DescribeSnippet", arg0)
+	ret := m.ctrl.Call(m, "DescribeSnippet", arg0, arg1)
 	ret0, _ := ret[0].(*models.Snippet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // DescribeSnippet indicates an expected call of DescribeSnippet.
-func (mr *MockRepoMockRecorder) DescribeSnippet(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) DescribeSnippet(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSnippet", reflect.TypeOf((*MockRepo)(nil).DescribeSnippet), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSnippet", reflect.TypeOf((*MockRepo)(nil).DescribeSnippet), arg0, arg1)
 }
 
 // ListSnippets mocks base method.
-func (m *MockRepo) ListSnippets(arg0, arg1 uint64) ([]models.Snippet, error) {
+func (m *MockRepo) ListSnippets(arg0 context.Context, arg1, arg2 uint64) ([]models.Snippet, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListSnippets", arg0, arg1)
+	ret := m.ctrl.Call(m, "ListSnippets", arg0, arg1, arg2)
 	ret0, _ := ret[0].([]models.Snippet)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListSnippets indicates an expected call of ListSnippets.
-func (mr *MockRepoMockRecorder) ListSnippets(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) ListSnippets(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSnippets", reflect.TypeOf((*MockRepo)(nil).ListSnippets), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSnippets", reflect.TypeOf((*MockRepo)(nil).ListSnippets), arg0, arg1, arg2)
 }
 
 // RemoveSnippet mocks base method.
-func (m *MockRepo) RemoveSnippet(arg0 uint64) error {
+func (m *MockRepo) RemoveSnippet(arg0 context.Context, arg1 uint64) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveSnippet", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "RemoveSnippet", arg0, arg1)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // RemoveSnippet indicates an expected call of RemoveSnippet.
-func (mr *MockRepoMockRecorder) RemoveSnippet(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) RemoveSnippet(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveSnippet", reflect.TypeOf((*MockRepo)(nil).RemoveSnippet), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveSnippet", reflect.TypeOf((*MockRepo)(nil).RemoveSnippet), arg0, arg1)
 }
