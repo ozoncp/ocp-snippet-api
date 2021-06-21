@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	"log"
 	"net"
@@ -10,11 +11,13 @@ import (
 
 	"context"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
-	// "google.golang.org/grpc/reflection"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	api "github.com/ozoncp/ocp-snippet-api/internal/api"
+	"github.com/ozoncp/ocp-snippet-api/internal/metrics"
+	"github.com/ozoncp/ocp-snippet-api/internal/producer"
 	"github.com/ozoncp/ocp-snippet-api/internal/repo"
 	desc "github.com/ozoncp/ocp-snippet-api/pkg/ocp-snippet-api"
 )
@@ -29,19 +32,25 @@ var (
 	httpEndpoint = fmt.Sprintf("localhost:%d", httpPort)
 )
 
+func getEnv(key string, defaultValue string) string {
+	res := os.Getenv(key)
+	if len(res) == 0 {
+		res = defaultValue
+	}
+	return res
+}
+
 func createDB() *sql.DB {
-	const (
-		dsnPreffix string = "postgres://"
-		host       string = "localhost"
-		port       int    = 5432
-		name       string = "postgres"
-		user       string = "postgres"
-		pswd       string = "leshiy"
-	)
+	dsnPreffix := getEnv("OCP_SNIPPET_API_DB_DSN_PREFFIX", "postgres://")
+	host := getEnv("OCP_SNIPPET_API_DB_HOST", "localhost")
+	port := getEnv("OCP_SNIPPET_API_DB_PORT", "5432")
+	name := getEnv("OCP_SNIPPET_API_DB_NAME", "postgres")
+	user := getEnv("OCP_SNIPPET_API_DB_USER", "postgres")
+	pswd := getEnv("OCP_SNIPPET_API_DB_PSWD", "")
 
 	dsn := fmt.Sprintf("%s%s:%s@%s", dsnPreffix, user, pswd, host)
-	if port >= 0 {
-		dsn = fmt.Sprintf("%s:%d", dsn, port)
+	if len(port) > 0 {
+		dsn = fmt.Sprintf("%s:%s", dsn, port)
 	}
 	dsn = fmt.Sprintf("%s/%s", dsn, name)
 
@@ -54,6 +63,17 @@ func createDB() *sql.DB {
 	return db
 }
 
+func runMetrics() {
+
+	metrics.RegisterMetrics()
+	http.Handle("/metrics", promhttp.Handler())
+
+	err := http.ListenAndServe(":9100", nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func run() error {
 	listener, err := net.Listen("tcp", grpcEndpoint)
 	if err != nil {
@@ -62,13 +82,18 @@ func run() error {
 
 	ctx := context.Background()
 	s := grpc.NewServer()
-	// reflection.Register(s)
+
+	prod, err := producer.NewProducer("ocp-snippet-api")
+	if err != nil {
+		log.Fatalf("Cannot create prod: %v", err)
+	}
+	defer prod.Close()
 
 	db := createDB()
 	repo := repo.NewRepoDB(db)
 	defer db.Close()
 
-	desc.RegisterOcpSnippetApiServer(s, api.NewOcpSnippetApi(repo))
+	desc.RegisterOcpSnippetApiServer(s, api.NewOcpSnippetApi(repo, prod))
 
 	go func() {
 		fmt.Printf("GRPC server listening on %s\n", grpcEndpoint)
@@ -93,8 +118,11 @@ func run() error {
 func main() {
 	fmt.Println("ocp-snippet-api by Oleg Usov")
 
+	go runMetrics()
+
 	if err := run(); err != nil {
 		log.Fatal(err)
 	}
 
+	fmt.Println("ocp-snippet-api stoped!")
 }

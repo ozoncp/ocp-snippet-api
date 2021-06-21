@@ -43,8 +43,6 @@ func (m *CreateSnippetV1Request) Validate() error {
 
 	// no validation rules for SolutionId
 
-	// no validation rules for UserId
-
 	// no validation rules for Text
 
 	// no validation rules for Language
@@ -176,6 +174,157 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateSnippetV1ResponseValidationError{}
+
+// Validate checks the field values on MultiCreateSnippetV1Request with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *MultiCreateSnippetV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetSnippets() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return MultiCreateSnippetV1RequestValidationError{
+					field:  fmt.Sprintf("Snippets[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MultiCreateSnippetV1RequestValidationError is the validation error returned
+// by MultiCreateSnippetV1Request.Validate if the designated constraints
+// aren't met.
+type MultiCreateSnippetV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MultiCreateSnippetV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MultiCreateSnippetV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MultiCreateSnippetV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MultiCreateSnippetV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MultiCreateSnippetV1RequestValidationError) ErrorName() string {
+	return "MultiCreateSnippetV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MultiCreateSnippetV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMultiCreateSnippetV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MultiCreateSnippetV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MultiCreateSnippetV1RequestValidationError{}
+
+// Validate checks the field values on MultiCreateSnippetV1Response with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *MultiCreateSnippetV1Response) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// MultiCreateSnippetV1ResponseValidationError is the validation error returned
+// by MultiCreateSnippetV1Response.Validate if the designated constraints
+// aren't met.
+type MultiCreateSnippetV1ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MultiCreateSnippetV1ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MultiCreateSnippetV1ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MultiCreateSnippetV1ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MultiCreateSnippetV1ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MultiCreateSnippetV1ResponseValidationError) ErrorName() string {
+	return "MultiCreateSnippetV1ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MultiCreateSnippetV1ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMultiCreateSnippetV1Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MultiCreateSnippetV1ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MultiCreateSnippetV1ResponseValidationError{}
 
 // Validate checks the field values on DescribeSnippetV1Request with the rules
 // defined in the proto definition for this message. If any rules are
@@ -476,6 +625,150 @@ var _ interface {
 	ErrorName() string
 } = ListSnippetsV1ResponseValidationError{}
 
+// Validate checks the field values on UpdateSnippetV1Request with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *UpdateSnippetV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	// no validation rules for SolutionId
+
+	// no validation rules for Text
+
+	// no validation rules for Language
+
+	return nil
+}
+
+// UpdateSnippetV1RequestValidationError is the validation error returned by
+// UpdateSnippetV1Request.Validate if the designated constraints aren't met.
+type UpdateSnippetV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateSnippetV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateSnippetV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateSnippetV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateSnippetV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateSnippetV1RequestValidationError) ErrorName() string {
+	return "UpdateSnippetV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateSnippetV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateSnippetV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateSnippetV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateSnippetV1RequestValidationError{}
+
+// Validate checks the field values on UpdateSnippetV1Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *UpdateSnippetV1Response) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Updated
+
+	return nil
+}
+
+// UpdateSnippetV1ResponseValidationError is the validation error returned by
+// UpdateSnippetV1Response.Validate if the designated constraints aren't met.
+type UpdateSnippetV1ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateSnippetV1ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateSnippetV1ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateSnippetV1ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateSnippetV1ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateSnippetV1ResponseValidationError) ErrorName() string {
+	return "UpdateSnippetV1ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateSnippetV1ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateSnippetV1Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateSnippetV1ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateSnippetV1ResponseValidationError{}
+
 // Validate checks the field values on RemoveSnippetV1Request with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
@@ -624,8 +917,6 @@ func (m *Snippet) Validate() error {
 	// no validation rules for Id
 
 	// no validation rules for SolutionId
-
-	// no validation rules for UserId
 
 	// no validation rules for Text
 

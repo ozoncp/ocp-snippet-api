@@ -13,6 +13,15 @@ service OcpSnippetApi {
 	rpc CreateSnippetV1(CreateSnippetV1Request) returns (CreateSnippetV1Response) {
 		option (google.api.http) = {
 			post: "/snippets/create/v1"
+			body: "*"
+		};
+	}
+
+	//  Создаёт несколько новых фрагментов решения
+	rpc MultiCreateSnippetV1(MultiCreateSnippetV1Request) returns (MultiCreateSnippetV1Response) {
+		option (google.api.http) = {
+			post: "/snippets/multi_create/v1"
+			body: "*"
 		};
 	}
 
@@ -21,13 +30,20 @@ service OcpSnippetApi {
 		option (google.api.http) = {
 			get: "/snippets/describe/v1/{snippet_id}"
 		};
-    }
+	}
 	
 	// Возвращает список фрагментов решения
 	rpc ListSnippetsV1(ListSnippetsV1Request) returns (ListSnippetsV1Response) {
 		option (google.api.http) = {
 			get: "/snippets/list/v1"
-        };
+		};
+	}
+
+	//  Обнавляет фрагмент решения по его Id
+	rpc UpdateSnippetV1(UpdateSnippetV1Request) returns (UpdateSnippetV1Response) {
+		option (google.api.http) = {
+			post: "/snippets/update/v1"
+		};
 	}
 	
 	// Удаляет фрагмент решения
@@ -40,13 +56,18 @@ service OcpSnippetApi {
 
 // Создание:
 message CreateSnippetV1Request {
-	uint64 solution_id = 1;
-	uint64 user_id     = 2;
+	uint64 solution_id = 1 [(validate.rules).uint64.gt = 0];
 	string text        = 3;
 	string language    = 4;
 }
 message CreateSnippetV1Response {
 	uint64 id = 1;
+}
+message MultiCreateSnippetV1Request {
+	repeated CreateSnippetV1Request snippets = 1;
+}
+message MultiCreateSnippetV1Response {
+	repeated uint64 ids = 1;
 }
 
 // Чтение:
@@ -59,11 +80,22 @@ message DescribeSnippetV1Response {
  
 // Получение списка:
 message ListSnippetsV1Request {
-    uint64 limit = 1;
-    uint64 offset = 2;
+	uint64 limit = 1 [(validate.rules).uint64.gt = 0];
+	uint64 offset = 2 [(validate.rules).uint64.gt = 0];
 }
 message ListSnippetsV1Response {
-    repeated Snippet snippets = 1;
+	repeated Snippet snippets = 1;
+}
+ 
+// Получение списка:
+message UpdateSnippetV1Request {
+	uint64 id          = 1 [(validate.rules).uint64.gt = 0];
+	int64 solution_id = 2 [(validate.rules).uint64.gt = 0];
+	string text        = 4;
+	string language    = 5;
+}
+message UpdateSnippetV1Response {
+	bool updated = 1;
 }
 
 // Удаление:
@@ -76,9 +108,8 @@ message RemoveSnippetV1Response {
 
 
 message Snippet {
-    uint64 id          = 1;
-    uint64 solution_id = 2;
-	uint64 user_id     = 3;
+	uint64 id          = 1 [(validate.rules).uint64.gt = 0];
+	uint64 solution_id = 2 [(validate.rules).uint64.gt = 0];
 	string text        = 4;
 	string language    = 5;
 }

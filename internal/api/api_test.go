@@ -14,6 +14,7 @@ import (
 
 	"github.com/ozoncp/ocp-snippet-api/internal/api"
 	"github.com/ozoncp/ocp-snippet-api/internal/models"
+	"github.com/ozoncp/ocp-snippet-api/internal/producer"
 	"github.com/ozoncp/ocp-snippet-api/internal/repo"
 	desc "github.com/ozoncp/ocp-snippet-api/pkg/ocp-snippet-api"
 )
@@ -38,7 +39,12 @@ var _ = Describe("Api", func() {
 		ctx = context.Background()
 		repoDB = repo.NewRepoDB(db)
 
-		apiServer = api.NewOcpSnippetApi(repoDB)
+		prod, err := producer.NewProducer("test-ocp-cnippet-api")
+		if err != nil {
+			Fail("Cannor create producer")
+		}
+
+		apiServer = api.NewOcpSnippetApi(repoDB, prod)
 	})
 
 	AfterEach(func() {
@@ -54,7 +60,6 @@ var _ = Describe("Api", func() {
 		It("created successfully", func() {
 			req = desc.CreateSnippetV1Request{
 				SolutionId: 1,
-				UserId:     2,
 				Text:       "aa",
 				Language:   "ru",
 			}
@@ -72,7 +77,7 @@ var _ = Describe("Api", func() {
 
 		AfterEach(func() {
 			mock.ExpectQuery("INSERT INTO snippets").
-				WithArgs(req.SolutionId, req.UserId, req.Text, req.Language).
+				WithArgs(req.SolutionId, req.Text, req.Language).
 				WillReturnRows(
 					sqlmock.NewRows([]string{"id"}).AddRow(expectedRes.Id),
 				)
@@ -131,7 +136,7 @@ var _ = Describe("Api", func() {
 			expectedRes  desc.DescribeSnippetV1Response
 			expectedRows *sqlmock.Rows
 
-			columns = []string{"id", "solution_id", "user_id", "text", "language"}
+			columns = []string{"id", "solution_id", "text", "language"}
 		)
 
 		It("describe successfully", func() {
@@ -142,7 +147,6 @@ var _ = Describe("Api", func() {
 				Snippet: &desc.Snippet{
 					Id:         req.SnippetId,
 					SolutionId: 1,
-					UserId:     2,
 					Text:       "aa",
 					Language:   "ru",
 				},
@@ -150,7 +154,6 @@ var _ = Describe("Api", func() {
 			expectedRows = sqlmock.NewRows(columns).
 				AddRow(expectedRes.Snippet.Id,
 					expectedRes.Snippet.SolutionId,
-					expectedRes.Snippet.UserId,
 					expectedRes.Snippet.Text,
 					expectedRes.Snippet.Language)
 
@@ -164,7 +167,6 @@ var _ = Describe("Api", func() {
 			Expect(res).ShouldNot(BeNil())
 			Expect(res.Snippet.Id).Should(BeEquivalentTo(expectedRes.Snippet.Id))
 			Expect(res.Snippet.SolutionId).Should(BeEquivalentTo(expectedRes.Snippet.SolutionId))
-			Expect(res.Snippet.UserId).Should(BeEquivalentTo(expectedRes.Snippet.UserId))
 			Expect(res.Snippet.Text).Should(BeEquivalentTo(expectedRes.Snippet.Text))
 			Expect(res.Snippet.Language).Should(BeEquivalentTo(expectedRes.Snippet.Language))
 		})
@@ -195,17 +197,17 @@ var _ = Describe("Api", func() {
 			rows     *sqlmock.Rows
 			snippets []models.Snippet
 
-			columns = []string{"id", "solution_id", "user_id", "text", "language"}
+			columns = []string{"id", "solution_id", "text", "language"}
 		)
 
 		BeforeEach(func() {
 			snippets = []models.Snippet{
-				{Id: 1, SolutionId: 1, UserId: 1, Text: "a", Language: "ru"},
-				{Id: 2, SolutionId: 2, UserId: 2, Text: "b", Language: "en"},
-				{Id: 3, SolutionId: 3, UserId: 3, Text: "c", Language: "fr"},
-				{Id: 4, SolutionId: 4, UserId: 4, Text: "d", Language: "ru"},
-				{Id: 5, SolutionId: 5, UserId: 5, Text: "e", Language: "en"},
-				{Id: 6, SolutionId: 6, UserId: 6, Text: "f", Language: "ru"},
+				{Id: 1, SolutionId: 1, Text: "a", Language: "ru"},
+				{Id: 2, SolutionId: 2, Text: "b", Language: "en"},
+				{Id: 3, SolutionId: 3, Text: "c", Language: "fr"},
+				{Id: 4, SolutionId: 4, Text: "d", Language: "ru"},
+				{Id: 5, SolutionId: 5, Text: "e", Language: "en"},
+				{Id: 6, SolutionId: 6, Text: "f", Language: "ru"},
 			}
 
 			rows = sqlmock.NewRows(columns)
@@ -218,11 +220,11 @@ var _ = Describe("Api", func() {
 			}
 			expectedRes = desc.ListSnippetsV1Response{
 				Snippets: []*desc.Snippet{
-					{Id: 1, SolutionId: 1, UserId: 1, Text: "a", Language: "ru"},
-					{Id: 2, SolutionId: 2, UserId: 2, Text: "b", Language: "en"},
-					{Id: 3, SolutionId: 3, UserId: 3, Text: "c", Language: "fr"},
-					{Id: 4, SolutionId: 4, UserId: 4, Text: "d", Language: "ru"},
-					{Id: 5, SolutionId: 5, UserId: 5, Text: "e", Language: "en"},
+					{Id: 1, SolutionId: 1, Text: "a", Language: "ru"},
+					{Id: 2, SolutionId: 2, Text: "b", Language: "en"},
+					{Id: 3, SolutionId: 3, Text: "c", Language: "fr"},
+					{Id: 4, SolutionId: 4, Text: "d", Language: "ru"},
+					{Id: 5, SolutionId: 5, Text: "e", Language: "en"},
 				},
 			}
 
@@ -230,7 +232,6 @@ var _ = Describe("Api", func() {
 			for i, n := req.Offset, req.Offset+req.Limit; int(i) < len(snippets) && i < n; i++ {
 				rows.AddRow(snippets[i].Id,
 					snippets[i].SolutionId,
-					snippets[i].UserId,
 					snippets[i].Text,
 					snippets[i].Language)
 			}

@@ -7,7 +7,6 @@ import (
 type Snippet struct {
 	Id         uint64
 	SolutionId uint64
-	UserId     uint64
 	Text       string
 	Language   string
 }
@@ -20,7 +19,6 @@ func String(snippetPtr *Snippet) string {
 	return "Snippet {" + "\n\t" +
 		"Id: " + strconv.Itoa(int(snippetPtr.Id)) + ",\n\t" +
 		"SolutionId: " + strconv.Itoa(int(snippetPtr.SolutionId)) + ",\n\t" +
-		"UserId: " + strconv.Itoa(int(snippetPtr.UserId)) + ",\n\t" +
 		"Text: " + snippetPtr.Text + ",\n\t" +
 		"Language: " + snippetPtr.Language + ",\n" +
 		"}"
