@@ -166,6 +166,16 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiUpdateSnippetV1Request"
+            }
+          }
+        ],
         "tags": [
           "OcpSnippetApi"
         ]
@@ -267,6 +277,26 @@
           "type": "string"
         }
       }
+    },
+    "apiUpdateSnippetV1Request": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "solution_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "text": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        }
+      },
+      "title": "Получение списка:"
     },
     "apiUpdateSnippetV1Response": {
       "type": "object",

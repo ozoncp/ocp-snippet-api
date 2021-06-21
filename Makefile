@@ -40,3 +40,6 @@ PHONY: .vendor-proto
 			mkdir -p vendor.protogen/github.com/envoyproxy &&\
 			git clone https://github.com/envoyproxy/protoc-gen-validate vendor.protogen/github.com/envoyproxy/protoc-gen-validate ;\
 		fi
+
+lint:
+	golangci-lint run
