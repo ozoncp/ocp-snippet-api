@@ -43,6 +43,7 @@ service OcpSnippetApi {
 	rpc UpdateSnippetV1(UpdateSnippetV1Request) returns (UpdateSnippetV1Response) {
 		option (google.api.http) = {
 			post: "/snippets/update/v1"
+			body: "*"
 		};
 	}
 	
@@ -90,7 +91,7 @@ message ListSnippetsV1Response {
 // Получение списка:
 message UpdateSnippetV1Request {
 	uint64 id          = 1 [(validate.rules).uint64.gt = 0];
-	int64 solution_id = 2 [(validate.rules).uint64.gt = 0];
+	uint64 solution_id = 2 [(validate.rules).uint64.gt = 0];
 	string text        = 4;
 	string language    = 5;
 }

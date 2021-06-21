@@ -4,10 +4,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type Publisher interface {
-	PublishFlushing(count int)
-}
-
 var processedByCRUDHandler *prometheus.CounterVec = prometheus.NewCounterVec(
 	prometheus.CounterOpts{
 		Name: "processed_by_crud_handler",
