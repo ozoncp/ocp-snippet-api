@@ -154,6 +154,32 @@
         ]
       }
     },
+    "/snippets/restore/v1/{snippet_id}": {
+      "post": {
+        "summary": "Восстанавливает фрагмент решения",
+        "operationId": "RestoreSnippetV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiRestoreSnippetV1Response"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "snippet_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpSnippetApi"
+        ]
+      }
+    },
     "/snippets/update/v1": {
       "post": {
         "summary": "Обнавляет фрагмент решения по его Id",
@@ -254,6 +280,15 @@
       "type": "object",
       "properties": {
         "removed": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "apiRestoreSnippetV1Response": {
+      "type": "object",
+      "properties": {
+        "restored": {
           "type": "boolean",
           "format": "boolean"
         }

@@ -30,6 +30,8 @@ type OcpSnippetApiClient interface {
 	UpdateSnippetV1(ctx context.Context, in *UpdateSnippetV1Request, opts ...grpc.CallOption) (*UpdateSnippetV1Response, error)
 	// Удаляет фрагмент решения
 	RemoveSnippetV1(ctx context.Context, in *RemoveSnippetV1Request, opts ...grpc.CallOption) (*RemoveSnippetV1Response, error)
+	// Восстанавливает фрагмент решения
+	RestoreSnippetV1(ctx context.Context, in *RestoreSnippetV1Request, opts ...grpc.CallOption) (*RestoreSnippetV1Response, error)
 }
 
 type ocpSnippetApiClient struct {
@@ -94,6 +96,15 @@ func (c *ocpSnippetApiClient) RemoveSnippetV1(ctx context.Context, in *RemoveSni
 	return out, nil
 }
 
+func (c *ocpSnippetApiClient) RestoreSnippetV1(ctx context.Context, in *RestoreSnippetV1Request, opts ...grpc.CallOption) (*RestoreSnippetV1Response, error) {
+	out := new(RestoreSnippetV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.snippet.api.OcpSnippetApi/RestoreSnippetV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OcpSnippetApiServer is the server API for OcpSnippetApi service.
 // All implementations must embed UnimplementedOcpSnippetApiServer
 // for forward compatibility
@@ -110,6 +121,8 @@ type OcpSnippetApiServer interface {
 	UpdateSnippetV1(context.Context, *UpdateSnippetV1Request) (*UpdateSnippetV1Response, error)
 	// Удаляет фрагмент решения
 	RemoveSnippetV1(context.Context, *RemoveSnippetV1Request) (*RemoveSnippetV1Response, error)
+	// Восстанавливает фрагмент решения
+	RestoreSnippetV1(context.Context, *RestoreSnippetV1Request) (*RestoreSnippetV1Response, error)
 	mustEmbedUnimplementedOcpSnippetApiServer()
 }
 
@@ -134,6 +147,9 @@ func (UnimplementedOcpSnippetApiServer) UpdateSnippetV1(context.Context, *Update
 }
 func (UnimplementedOcpSnippetApiServer) RemoveSnippetV1(context.Context, *RemoveSnippetV1Request) (*RemoveSnippetV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveSnippetV1 not implemented")
+}
+func (UnimplementedOcpSnippetApiServer) RestoreSnippetV1(context.Context, *RestoreSnippetV1Request) (*RestoreSnippetV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RestoreSnippetV1 not implemented")
 }
 func (UnimplementedOcpSnippetApiServer) mustEmbedUnimplementedOcpSnippetApiServer() {}
 
@@ -256,6 +272,24 @@ func _OcpSnippetApi_RemoveSnippetV1_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OcpSnippetApi_RestoreSnippetV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RestoreSnippetV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpSnippetApiServer).RestoreSnippetV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.snippet.api.OcpSnippetApi/RestoreSnippetV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpSnippetApiServer).RestoreSnippetV1(ctx, req.(*RestoreSnippetV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OcpSnippetApi_ServiceDesc is the grpc.ServiceDesc for OcpSnippetApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -286,6 +320,10 @@ var OcpSnippetApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveSnippetV1",
 			Handler:    _OcpSnippetApi_RemoveSnippetV1_Handler,
+		},
+		{
+			MethodName: "RestoreSnippetV1",
+			Handler:    _OcpSnippetApi_RestoreSnippetV1_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -907,6 +907,144 @@ var _ interface {
 	ErrorName() string
 } = RemoveSnippetV1ResponseValidationError{}
 
+// Validate checks the field values on RestoreSnippetV1Request with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *RestoreSnippetV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for SnippetId
+
+	return nil
+}
+
+// RestoreSnippetV1RequestValidationError is the validation error returned by
+// RestoreSnippetV1Request.Validate if the designated constraints aren't met.
+type RestoreSnippetV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RestoreSnippetV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RestoreSnippetV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RestoreSnippetV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RestoreSnippetV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RestoreSnippetV1RequestValidationError) ErrorName() string {
+	return "RestoreSnippetV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RestoreSnippetV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRestoreSnippetV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RestoreSnippetV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RestoreSnippetV1RequestValidationError{}
+
+// Validate checks the field values on RestoreSnippetV1Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *RestoreSnippetV1Response) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Restored
+
+	return nil
+}
+
+// RestoreSnippetV1ResponseValidationError is the validation error returned by
+// RestoreSnippetV1Response.Validate if the designated constraints aren't met.
+type RestoreSnippetV1ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RestoreSnippetV1ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RestoreSnippetV1ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RestoreSnippetV1ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RestoreSnippetV1ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RestoreSnippetV1ResponseValidationError) ErrorName() string {
+	return "RestoreSnippetV1ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RestoreSnippetV1ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRestoreSnippetV1Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RestoreSnippetV1ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RestoreSnippetV1ResponseValidationError{}
+
 // Validate checks the field values on Snippet with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
 func (m *Snippet) Validate() error {

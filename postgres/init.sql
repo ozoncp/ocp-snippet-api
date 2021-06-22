@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS public.snippets
     id SERIAL NOT NULL PRIMARY KEY,
     solution_id bigint,
     text text COLLATE pg_catalog."default",
-    language text COLLATE pg_catalog."default"
+    language text COLLATE pg_catalog."default",
+    deleted boolean DEFAULT FALSE,
+    delete_time timestamp
 )
 
 TABLESPACE pg_default;
