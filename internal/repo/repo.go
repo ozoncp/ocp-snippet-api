@@ -4,10 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/opentracing/opentracing-go"
+	"github.com/ozoncp/ocp-snippet-api/internal/configuration"
 	"github.com/ozoncp/ocp-snippet-api/internal/models"
 	"github.com/ozoncp/ocp-snippet-api/internal/utils"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
 	_ "github.com/jackc/pgx/stdlib"
@@ -21,12 +24,25 @@ type Repo interface {
 	DescribeSnippet(ctx context.Context, snippetId uint64) (*models.Snippet, error)
 	ListSnippets(ctx context.Context, limit, offset uint64) ([]models.Snippet, error)
 	UpdateSnippet(ctx context.Context, snippet models.Snippet) (bool, error)
+	RestoreSnippet(ctx context.Context, snippetId uint64) (bool, error)
 }
 
-const (
+// Default values:
+var (
 	table     string = "snippets"
-	chunkSize uint   = 10 // TO BE FIXED: надо как-то параметризировать
+	chunkSize uint   = 10
 )
+
+func init() {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+
+	if config := configuration.GetInstance(); config != nil {
+		table = config.Db.Table
+		chunkSize = config.Db.ChunkSize
+	} else {
+		log.Warn().Msg("Cannot read config")
+	}
+}
 
 type repoDB struct {
 	db *sql.DB
@@ -112,7 +128,12 @@ func (repo *repoDB) RemoveSnippet(ctx context.Context, snippetId uint64) (bool, 
 		return false, err
 	}
 
-	query := sq.Delete(table).Where(sq.Eq{"id": snippetId}).RunWith(repo.db).PlaceholderFormat(sq.Dollar)
+	query := sq.Update(table).
+		Set("deleted", true).
+		Set("delete_time", time.Now()).
+		Where(sq.Eq{"id": snippetId, "deleted": false}). // То, что мертво, умереть не может!
+		RunWith(repo.db).
+		PlaceholderFormat(sq.Dollar)
 
 	res, err := query.ExecContext(ctx)
 
@@ -123,6 +144,37 @@ func (repo *repoDB) RemoveSnippet(ctx context.Context, snippetId uint64) (bool, 
 
 	rowsDeleted, _ := res.RowsAffected()
 	log.Info().Msgf("%d rows deleted!\n", rowsDeleted)
+
+	return rowsDeleted > 0, nil
+}
+
+func (repo *repoDB) RestoreSnippet(ctx context.Context, snippetId uint64) (bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "Removing snippet")
+	defer span.Finish()
+
+	if err := pingContext(ctx, repo); err != nil {
+		return false, err
+	}
+
+	// TO DO: Проверять время удаления, если прошло больше суток - удалять насовсем.
+	// Либо просто отказывать в восстановлении, а физическое удаление оставить "сборщику мусора"?..
+
+	query := sq.Update(table).
+		Set("deleted", false).
+		Set("delete_time", nil).
+		Where(sq.Eq{"id": snippetId, "deleted": true}). // То, что живо, ожить не может!
+		RunWith(repo.db).
+		PlaceholderFormat(sq.Dollar)
+
+	res, err := query.ExecContext(ctx)
+
+	if err != nil {
+		log.Warn().Msgf("Failed to exec query: %v\n", err)
+		return false, err
+	}
+
+	rowsDeleted, _ := res.RowsAffected()
+	log.Info().Msgf("%d rows restored!\n", rowsDeleted)
 
 	return rowsDeleted > 0, nil
 }

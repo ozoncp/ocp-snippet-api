@@ -20,8 +20,11 @@ import (
 	"github.com/ozoncp/ocp-snippet-api/internal/producer"
 	"github.com/ozoncp/ocp-snippet-api/internal/repo"
 	desc "github.com/ozoncp/ocp-snippet-api/pkg/ocp-snippet-api"
+
+	"github.com/ozoncp/ocp-snippet-api/internal/configuration"
 )
 
+// Default values:
 const (
 	grpcPort = 12345
 	httpPort = 54321
@@ -31,6 +34,15 @@ var (
 	grpcEndpoint = fmt.Sprintf("localhost:%d", grpcPort)
 	httpEndpoint = fmt.Sprintf("localhost:%d", httpPort)
 )
+
+func init() {
+	if config := configuration.GetInstance(); config != nil {
+		grpcEndpoint = fmt.Sprintf("localhost:%d", config.Grpc.GrpcPort)
+		httpEndpoint = fmt.Sprintf("localhost:%d", config.Grpc.HttpPort)
+	} else {
+		log.Printf("Cannot read config")
+	}
+}
 
 func getEnv(key string, defaultValue string) string {
 	res := os.Getenv(key)

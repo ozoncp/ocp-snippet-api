@@ -25,6 +25,7 @@ const (
 	errCannotListSnippet     = "cannot list snippets"
 	errCannotRemoveSnippet   = "cannot remove snippet"
 	errCannotUpdateSnippet   = "cannot update snippet"
+	errCannotRestoreSnippet  = "cannot restore snippet"
 )
 
 type api struct {
@@ -33,7 +34,7 @@ type api struct {
 	prod producer.Producer
 }
 
-func Init() {
+func init() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 }
 
@@ -65,22 +66,22 @@ func (a *api) CreateSnippetV1(ctx context.Context, req *desc.CreateSnippetV1Requ
 	log.Print("CreateSnippetV1: ", req)
 
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, errNilRequest) //errors.New("empty request received")
+		return nil, status.Error(codes.InvalidArgument, errNilRequest)
 	}
 
 	snippet := createSnippetRequestConverter(req)
 	if snippet == nil {
-		return nil, status.Error(codes.FailedPrecondition, errConverter) //errors.New("cannot convert request to models.Snippet")
+		return nil, status.Error(codes.FailedPrecondition, errConverter)
 	}
 
 	snippets := []models.Snippet{*snippet}
 
 	if err := a.repo.AddSnippets(ctx, snippets); err != nil {
-		return nil, status.Error(codes.DataLoss, err.Error()) //err
+		return nil, status.Error(codes.DataLoss, err.Error())
 	}
 
 	if len(snippets) < 1 {
-		return nil, status.Error(codes.DataLoss, errEmptySnippetsAfterAdd) //errors.New("empty snippets received after AddSnippets")
+		return nil, status.Error(codes.DataLoss, errEmptySnippetsAfterAdd)
 	}
 
 	fmt.Println(snippet)
@@ -103,7 +104,7 @@ func (a *api) MultiCreateSnippetV1(ctx context.Context, req *desc.MultiCreateSni
 	log.Print("CreateSnippetV1: ", req)
 
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, errNilRequest) //errors.New("empty request received")
+		return nil, status.Error(codes.InvalidArgument, errNilRequest)
 	}
 
 	snippets := make([]models.Snippet, len(req.Snippets))
@@ -121,7 +122,7 @@ func (a *api) MultiCreateSnippetV1(ctx context.Context, req *desc.MultiCreateSni
 	}
 
 	if len(snippets) < 1 {
-		return nil, status.Error(codes.DataLoss, errEmptySnippetsAfterAdd) //errors.New("empty snippets received after AddSnippets")
+		return nil, status.Error(codes.DataLoss, errEmptySnippetsAfterAdd)
 	}
 
 	metrics.IncrementSuccessfulCreate(len(snippets))
@@ -208,11 +209,39 @@ func (a *api) RemoveSnippetV1(ctx context.Context, req *desc.RemoveSnippetV1Requ
 	}, err
 }
 
+func (a *api) RestoreSnippetV1(ctx context.Context, req *desc.RestoreSnippetV1Request) (*desc.RestoreSnippetV1Response, error) {
+	log.Print("RestoreSnippetV1: ", req.SnippetId)
+
+	res, err := a.repo.RestoreSnippet(ctx, req.SnippetId)
+
+	a.prod.SendMessage(producer.SnippetEvent{
+		Type: producer.Created,
+		Body: map[string]interface{}{
+			"Id":       req.SnippetId,
+			"Restored": res,
+		},
+	})
+
+	var deletedCnt int
+	if res {
+		deletedCnt = 1
+	}
+	metrics.IncrementSuccessfulDelete(deletedCnt)
+
+	if err != nil {
+		err = status.Error(codes.Aborted, fmt.Sprintf("%s: %s", errCannotRestoreSnippet, err.Error()))
+	}
+
+	return &desc.RestoreSnippetV1Response{
+		Restored: res,
+	}, err
+}
+
 func (a *api) UpdateSnippetV1(ctx context.Context, req *desc.UpdateSnippetV1Request) (*desc.UpdateSnippetV1Response, error) {
 	log.Print("UpdateSnippetV1: ", req)
 
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, errNilRequest) //errors.New("empty snippet received fo update")
+		return nil, status.Error(codes.InvalidArgument, errNilRequest)
 	}
 
 	res, err := a.repo.UpdateSnippet(ctx, models.Snippet{

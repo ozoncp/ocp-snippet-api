@@ -1,0 +1,6 @@
+grpc:
+  grpcPort: 12345
+  httpPort: 54321
+db:
+  table: "snippet"
+  chunkSize: 10

@@ -53,6 +53,13 @@ service OcpSnippetApi {
 			delete: "/snippets/remove/v1/{snippet_id}"
 		};
 	}
+	
+	// Восстанавливает фрагмент решения
+	rpc RestoreSnippetV1(RestoreSnippetV1Request) returns (RestoreSnippetV1Response) {
+		option (google.api.http) = {
+			post: "/snippets/restore/v1/{snippet_id}"
+		};
+	}
 }
 
 // Создание:
@@ -105,6 +112,14 @@ message RemoveSnippetV1Request {
 }
 message RemoveSnippetV1Response {
 	bool removed = 1;
+}
+
+// Восстановление:
+message RestoreSnippetV1Request {
+	uint64 snippet_id = 1 [(validate.rules).uint64.gt = 0];
+}
+message RestoreSnippetV1Response {
+	bool restored = 1;
 }
 
 
